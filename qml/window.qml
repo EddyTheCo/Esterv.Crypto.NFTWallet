@@ -235,16 +235,37 @@ ApplicationWindow {
                         width: parent.width*0.95
                         height:parent.height*0.9
                         radius:5
-                        TextEdit
+                        Text
                         {
                             id:test
-                            readOnly: true
-                            selectByMouse: true
                             width:parent.width*0.90
                             anchors.centerIn: parent
                             color:"white"
-                            text: "block id:\n"+rootdelegate.blockid;
-                            wrapMode:Text.WrapAnywhere
+                            text: "block id:"+rootdelegate.blockid;
+                            elide:Text.ElideRight
+                        }
+
+                        ToolTip
+                        {
+                            id:tooltip
+                            visible: false
+                            text:qsTr("Copy")
+                        }
+                        TextEdit{
+                            id: textEdit
+                            visible: false
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled :true
+                            onEntered: tooltip.visible=!tooltip.visible
+                            onExited: tooltip.visible=!tooltip.visible
+                            onClicked:
+                            {
+                                textEdit.text = rootdelegate.blockid;
+                                textEdit.selectAll();
+                                textEdit.copy();
+                            }
                         }
                     }
                 }
