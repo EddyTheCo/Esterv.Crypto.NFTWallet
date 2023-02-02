@@ -31,6 +31,7 @@ ApplicationWindow {
         id: drawer
         width: (window.width<1100)?0.4 * window.width:440
         height: window.height
+        dragMargin :0
         position:1.0
         visible:true
         background:Rectangle
@@ -99,7 +100,7 @@ ApplicationWindow {
                 height:width/2
                 id:seetb
                 text:qsTr("Settings")
-                onClicked: drawer.visible=true;
+                onClicked: drawer.open();
             }
         }
 
