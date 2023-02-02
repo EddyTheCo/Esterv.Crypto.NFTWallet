@@ -149,6 +149,7 @@ void NFTCreator::tryToCreate(void)
                 }
 
                 info->deleteLater();
+                node_outputs_->deleteLater();
             });
         });
     }
