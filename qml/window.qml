@@ -13,7 +13,7 @@ ApplicationWindow {
     MyPayPopUp
     {
         id:paypopup
-        addr_:Account.addr([0,0,0]);
+        addr_:""
         descr_:""
         visible:false
         closePolicy: Popup.CloseOnPressOutside
@@ -22,7 +22,8 @@ ApplicationWindow {
     Connections {
         target: NFTCreator
         function onLfundsChanged() {
-            paypopup.descr_="Pay at least "+ NFTCreator.Lfunds +" to:" ;
+            paypopup.addr_=Account.addr([0,0,0]);
+            paypopup.descr_="Pay at least "+ NFTCreator.Lfunds +" to: \n" +paypopup.addr_ ;
             paypopup.visible=NFTCreator.Lfunds;
         }
     }
@@ -66,9 +67,9 @@ ApplicationWindow {
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                Layout.minimumHeight: 200
-                Layout.maximumWidth:  400
-                Layout.maximumHeight: 250
+                Layout.minimumHeight: 350
+                Layout.maximumWidth:  350
+                Layout.maximumHeight: 400
                 Layout.minimumWidth: 75
                 Layout.alignment: Qt.AlignCenter
             }
@@ -169,7 +170,7 @@ ApplicationWindow {
                     Layout.alignment: Qt.AlignHCenter
                     id:metadata_
                     desc:"Metadata"
-                    placeholderText: qsTr('Testing NFts on shimmer')
+                    placeholderText: qsTr('Testing NFTs on shimmer')
                 }
 
             }
@@ -224,6 +225,7 @@ ApplicationWindow {
                     color:"transparent"
                     width: listview.width
                     height:listview.height/10
+
                     Rectangle
                     {
                         anchors.centerIn: parent
@@ -231,39 +233,18 @@ ApplicationWindow {
                         border.width: 2
                         border.color: "white"
                         width: parent.width*0.95
-                        height:parent.height*0.60
+                        height:parent.height*0.9
                         radius:5
-                        Text
+                        TextEdit
                         {
                             id:test
+                            readOnly: true
+                            selectByMouse: true
                             width:parent.width*0.90
                             anchors.centerIn: parent
                             color:"white"
-                            text: "block id:"+rootdelegate.blockid;
-                            elide:Text.ElideRight
-                        }
-
-                        ToolTip
-                        {
-                            id:tooltip
-                            visible: false
-                            text:qsTr("Copy")
-                        }
-                        TextEdit{
-                            id: textEdit
-                            visible: false
-                        }
-                        MouseArea {
-                            anchors.fill: parent
-                            hoverEnabled :true
-                            onEntered: tooltip.visible=!tooltip.visible
-                            onExited: tooltip.visible=!tooltip.visible
-                            onClicked:
-                            {
-                                textEdit.text = rootdelegate.blockid;
-                                textEdit.selectAll();
-                                textEdit.copy();
-                            }
+                            text: "block id:\n"+rootdelegate.blockid;
+                            wrapMode:Text.WrapAnywhere
                         }
                     }
                 }
