@@ -143,7 +143,9 @@ void NFTCreator::tryToCreate(void)
                 }
                 else
                 {
-                    set_Lfunds(storage_deposit-amount);
+                    Lfunds_=storage_deposit-amount;
+                    emit lfundsChanged();
+
                 }
 
                 info->deleteLater();
