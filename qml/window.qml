@@ -218,6 +218,8 @@ ApplicationWindow {
                 anchors.fill: parent
                 model: blockidModel
                 delegate: Rectangle{
+                    id:rootdelegate
+                    required property string blockid
                     color:"transparent"
                     width: listview.width
                     height:listview.height/10
@@ -228,7 +230,7 @@ ApplicationWindow {
                         border.width: 2
                         border.color: "white"
                         width: parent.width*0.95
-                        height:75
+                        height:parent.height*0.60
                         radius:5
                         Text
                         {
@@ -236,7 +238,7 @@ ApplicationWindow {
                             width:parent.width*0.90
                             anchors.centerIn: parent
                             color:"white"
-                            text: "block id:"+blockid;
+                            text: "block id:"+rootdelegate.blockid;
                             elide:Text.ElideRight
                         }
 
@@ -257,7 +259,7 @@ ApplicationWindow {
                             onExited: tooltip.visible=!tooltip.visible
                             onClicked:
                             {
-                                textEdit.text = blockid;
+                                textEdit.text = rootdelegate.blockid;
                                 textEdit.selectAll();
                                 textEdit.copy();
                             }
