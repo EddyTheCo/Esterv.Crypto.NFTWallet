@@ -3,7 +3,7 @@
 #include<QJsonDocument>
 
 using namespace qblocks;
-NFTCreator::NFTCreator():connection_(nullptr),account_(nullptr),status_(Stte::Null),Lfunds_(0)
+NFTCreator::NFTCreator():connection_(nullptr),account_(nullptr),status_(Stte::Null),Lfunds_(0),hrp_("rms")
 {
     QObject::connect(this,&NFTCreator::connectionChanged,this,[=](){
 
@@ -11,7 +11,7 @@ NFTCreator::NFTCreator():connection_(nullptr),account_(nullptr),status_(Stte::Nu
             connect(connection_->rest_client,&qiota::Client::last_blockid,this,&NFTCreator::createdBlock);
             auto info=connection_->rest_client->get_api_core_v2_info();
             QObject::connect(info,&Node_info::finished,this,[=]( ){
-                hrp_=info->bech32Hrp;
+                set_hrp(info->bech32Hrp);
                 set_status(Stte::Ready);
                 info->deleteLater();
             });
@@ -36,15 +36,13 @@ void NFTCreator::createdBlock(qblocks::c_array bid)
 }
 void NFTCreator::set_recaddr(QString addr_m)
 {
-    if(!hrp_.isNull())
+    if(status_)
     {
         const auto addr_pair=qencoding::qbech32::Iota::decode(addr_m);
         if(addr_pair.second.size()&&addr_pair.second!=recaddr_)
         {
             recaddr_=addr_pair.second;
-
             emit recaddrChanged();
-
         }
 
     }
