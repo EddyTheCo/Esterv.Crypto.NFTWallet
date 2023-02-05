@@ -20,6 +20,7 @@ class NFTCreator : public QObject
     Q_PROPERTY(QString  recaddr READ recaddr WRITE set_recaddr NOTIFY recaddrChanged)
     Q_PROPERTY(QString  immetadata READ immetadata WRITE set_immetadata NOTIFY immetadataChanged)
     Q_PROPERTY(QString  metadata READ metadata WRITE set_metadata NOTIFY metadataChanged)
+    Q_PROPERTY(QString    hrp READ hrp   NOTIFY hrpChanged)
     Q_PROPERTY(Account*   account READ account WRITE set_account  NOTIFY accountChanged)
     Q_PROPERTY(Node_Conection*   connection READ connection WRITE set_connection  NOTIFY connectionChanged)
     QML_ELEMENT
@@ -39,6 +40,7 @@ public:
     QString recaddr(void)const;
     QString immetadata(void)const;
     QString metadata(void)const;
+    QString hrp(void)const{return hrp_;}
     Account* account(void)const{return account_;}
     Node_Conection* connection(void)const{return connection_;}
     quint64 Lfunds(void)const{return Lfunds_;}
@@ -46,6 +48,7 @@ public:
 
     void set_status(Stte st){if(st!=status_){status_=st;emit status_changed();}}
     void set_Lfunds(quint64 lfunds_m){if(Lfunds_!=lfunds_m){Lfunds_=lfunds_m;emit lfundsChanged();}}
+    void set_hrp(QString hrp_m){if(hrp_m!=hrp_){hrp_=hrp_m;emit hrpChanged();}}
     void set_recaddr(QString addr_m);
     void set_immetadata(QString met);
     void set_metadata(QString met);
@@ -53,6 +56,7 @@ public:
     void set_account(Account* acc){account_=acc;emit accountChanged();}
 
 signals:
+    void hrpChanged();
     void status_changed();
     void immetadataChanged();
     void metadataChanged();

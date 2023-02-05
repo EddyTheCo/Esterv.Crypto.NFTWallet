@@ -28,20 +28,19 @@ ApplicationWindow {
         }
     }
 
-    Drawer{
+    Drawer
+    {
         id: drawer
-        width: (window.width<1100)?0.4 * window.width:440
+        width: 360
         height: window.height
-        dragMargin :0
-        position:1.0
-        visible:true
+
+        closePolicy: Popup.CloseOnPressOutside
         background:Rectangle
         {
             color:"#0f171e"
             border.width: 2
             border.color: "white"
             radius:4
-
         }
 
 
@@ -138,7 +137,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter
                     desc:"Recieving address"
-                    placeholderText: "rms1... (mandatory)"
+                    placeholderText: NFTCreator.hrp+"1... (mandatory)"
                 }
 
 
