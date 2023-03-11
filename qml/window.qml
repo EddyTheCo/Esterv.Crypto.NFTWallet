@@ -281,6 +281,7 @@ ApplicationWindow {
                                 textEdit.text = rootdelegate.blockid;
                                 textEdit.selectAll();
                                 textEdit.copy();
+				Qt.openUrlExternally("https://explorer.shimmer.network/testnet/block/"+rootdelegate.blockid);
                             }
                         }
                     }
