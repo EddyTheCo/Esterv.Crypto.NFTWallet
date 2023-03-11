@@ -1,26 +1,29 @@
 cmake_minimum_required(VERSION 3.16)
 
+include(local_conf.cmake OPTIONAL)
+
 project(IOTA VERSION 0.1 LANGUAGES CXX)
+
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick)
+find_package(Qt6 COMPONENTS Core)
+find_package(Qt6 COMPONENTS Gui)
+find_package(Qt6 COMPONENTS Quick)
+find_package(Qt6 COMPONENTS Qml)
 
-include(local_conf.cmake OPTIONAL)
 
 qt_add_executable(nftMinter main.cpp)
 
 qt6_add_qml_module(nftMinter
     URI  NFT_Minter
     VERSION 1.0
-    QML_FILES
-    qml/window.qml
     SOURCES
     src/CreateNFT.cpp include/CreateNFT.hpp
+    QML_FILES
+    qml/window.qml
     RESOURCE_PREFIX
-    "/esthertech.com/imports"
-    OUTPUT_TARGETS out_targets_var
+    "/esterVtech.com/imports"
     IMPORTS MyDesigns nodeConection account
     IMPORT_PATH
     ${CMAKE_BINARY_DIR}/_deps/mydesigns-build
@@ -28,7 +31,7 @@ qt6_add_qml_module(nftMinter
     ${CMAKE_BINARY_DIR}/_deps/account-build
 )
 
-target_link_libraries(nftMinter PUBLIC Qt6::Gui Qt6::Quick)
+target_link_libraries(nftMinter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick)
 target_include_directories(nftMinter PUBLIC include)
 
 include(FetchContent)
@@ -58,7 +61,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nodeConection)
 
-target_link_libraries(nftMinter PUBLIC MyDesigns account nodeConection QtQrGen)
+target_link_libraries(nftMinter PRIVATE MyDesigns account nodeConection QtQrGen)
 
 target_compile_definitions(nftMinter
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
