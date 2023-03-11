@@ -22,9 +22,22 @@ ApplicationWindow {
     Connections {
         target: NFTCreator
         function onLfundsChanged() {
-            paypopup.addr_=Account.addr([0,0,0]);
-            paypopup.descr_="Pay at least "+ NFTCreator.Lfunds +" to: \n" +paypopup.addr_ ;
+            paypopup.addr_=Account.addr_bech32([0,0,0],Node_Conection.info().protocol.bech32Hrp);
+            paypopup.descr_="Pay at least "+ NFTCreator.Lfunds +" "+ Node_Conection.info().baseToken.subunit+" to: \n" +paypopup.addr_ ;
+	paypopup.url_="firefly:v1/wallet/send?recipient="+Account.addr_bech32([0,0,0],Node_Conection.info().protocol.bech32Hrp)+"&amount="+NFTCreator.Lfunds;	
             paypopup.visible=NFTCreator.Lfunds;
+        }
+    }
+    Connections {
+        target: Account
+        function onSeedChanged() {
+            NFTCreator.restart();
+        }
+    }
+    Connections {
+        target: Node_Conection
+        function onStateChanged() {
+            NFTCreator.restart();
         }
     }
 
@@ -88,19 +101,24 @@ ApplicationWindow {
             Layout.fillHeight:  true
             Layout.preferredWidth: 100
             Layout.minimumWidth: 50
-            Layout.maximumWidth: 120
+            Layout.maximumWidth: 90
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignLeft
             color:"#1f2937"
 
-            MyButton
+            MySettButton
             {
                 anchors.centerIn: parent
                 width:parent.width*0.95
                 height:width/2
                 id:seetb
-                text:qsTr("Settings")
                 onClicked: drawer.open();
+                rect_:Rectangle {
+                    radius:10
+                    border.color:"#0f79af"
+                    border.width:1
+                    color:"#0d1117"
+                }
             }
         }
 
@@ -108,9 +126,8 @@ ApplicationWindow {
         MyFrame
         {
 
-            Layout.minimumHeight: 400
+            Layout.minimumHeight: 500
             Layout.fillHeight:  true
-            Layout.preferredWidth: 400
             Layout.minimumWidth: 300
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignHCenter
@@ -122,33 +139,31 @@ ApplicationWindow {
             ColumnLayout
             {
                 spacing:20
-                width:parent.width
-                height:parent.height-create_.height
+                anchors.fill:parent
 
                 MyTextField
                 {
                     id:raddres_
 
-                    Layout.maximumHeight: 300
-                    Layout.minimumHeight: 45
+                    Layout.maximumHeight: 100
+                    Layout.minimumHeight: 50
                     Layout.fillHeight:  true
-                    Layout.minimumWidth: 75
                     Layout.maximumWidth: 500
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter
-                    desc:"Recieving address"
-                    placeholderText: NFTCreator.hrp+"1... (mandatory)"
+                    desc:"Receiving address"
+                    placeholderText: (Node_Conection.state)?Node_Conection.info().protocol.bech32Hrp+"1... (mandatory)":"Waiting for the node"
                 }
 
 
                 MyTextArea
                 {
                     id:immetadata_
-                    Layout.maximumHeight: 500
+
                     Layout.minimumHeight: 150
                     Layout.fillHeight:  true
-                    Layout.minimumWidth: 75
                     Layout.maximumWidth: 600
+                    Layout.maximumHeight: width*0.5
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter
 
@@ -160,45 +175,48 @@ ApplicationWindow {
 
                 MyTextArea
                 {
-                    Layout.maximumHeight: 500
+
                     Layout.minimumHeight: 150
                     Layout.fillHeight:  true
-                    Layout.minimumWidth: 75
                     Layout.maximumWidth: 600
+                    Layout.maximumHeight: width*0.5
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter
                     id:metadata_
                     desc:"Metadata"
                     placeholderText: qsTr('Testing NFTs on shimmer')
                 }
-
-            }
-
-
-            Rectangle
-            {
-                id:create_
-                anchors.bottom: parent.bottom
-                anchors.horizontalCenter: parent.horizontalCenter
-                width:parent.width
-                height:75
-                color:"#1f2937"
-                MyButton
+                Rectangle
                 {
-                    text:qsTr("Create")
-                    anchors.centerIn: parent
-                    width:100
-                    height:50
-                    enabled: NFTCreator.status
+                    id:create_
+                    color:"#1f2937"
+                    Layout.maximumHeight: 100
+                    Layout.minimumHeight: 50
+                    Layout.minimumWidth: 100
+                    Layout.fillHeight:  true
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignBottom
+                    MyButton
+                    {
+                        text:qsTr("Create")
+                        anchors.centerIn: parent
+                        width:120
+                        height:parent.height*0.7
+                        enabled: Node_Conection.state
 
-                    onClicked:{
-                        NFTCreator.recaddr=raddres_.tfield.text;
-                        NFTCreator.immetadata=immetadata_.tfield.text;
-                        NFTCreator.metadata=metadata_.tfield.text;
-                        NFTCreator.tryToCreate();
+                        onClicked:{
+                            NFTCreator.recaddr=raddres_.tfield.text;
+                            NFTCreator.immetadata=immetadata_.tfield.text;
+                            NFTCreator.metadata=metadata_.tfield.text;
+                            NFTCreator.tryToCreate();
+                        }
                     }
                 }
+
             }
+
+
+
 
 
         }
@@ -206,9 +224,7 @@ ApplicationWindow {
         {
             Layout.minimumHeight: 400
             Layout.fillHeight:  true
-            Layout.preferredWidth: 400
-            Layout.minimumWidth: 300
-            Layout.maximumWidth: 500
+            Layout.maximumWidth: 300
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignRight
             description:"Blocks produced"
@@ -222,8 +238,8 @@ ApplicationWindow {
                     id:rootdelegate
                     required property string blockid
                     color:"transparent"
-                    width: listview.width
-                    height:listview.height/10
+                    width: ListView.view.width
+                    height:80
 
                     Rectangle
                     {
@@ -242,6 +258,7 @@ ApplicationWindow {
                             color:"white"
                             text: "block id:"+rootdelegate.blockid;
                             elide:Text.ElideRight
+                            fontSizeMode:Text.Fit
                         }
 
                         ToolTip
@@ -286,10 +303,5 @@ ApplicationWindow {
     }
 
 
-    Component.onCompleted:
-    {
-        NFTCreator.account=Account
-        NFTCreator.connection=Node_Conection
-    }
 
 }
