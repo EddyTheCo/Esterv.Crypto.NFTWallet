@@ -3,32 +3,35 @@
 #include<QJsonDocument>
 
 using namespace qblocks;
-NFTCreator::NFTCreator():connection_(nullptr),account_(nullptr),status_(Stte::Null),Lfunds_(0),hrp_("rms")
+
+void NFTCreator::restart (void)
 {
-    QObject::connect(this,&NFTCreator::connectionChanged,this,[=](){
-
-        connect(connection_,&Node_Conection::connected,this,[=](){
-            connect(connection_->rest_client,&qiota::Client::last_blockid,this,&NFTCreator::createdBlock);
-            auto info=connection_->rest_client->get_api_core_v2_info();
-            QObject::connect(info,&Node_info::finished,this,[=]( ){
-                set_hrp(info->bech32Hrp);
-                set_status(Stte::Ready);
-                info->deleteLater();
+    if(receiver)receiver->deleteLater();
+    receiver=new QObject(this);
+    emit recaddrChanged();
+    if(Node_Conection::state()==Node_Conection::Connected)
+    {
+        connect(Node_Conection::rest_client,&qiota::Client::last_blockid,receiver,[=](qblocks::c_array id)
+        {
+            this->createdBlock(id);
+        });
+        auto info=Node_Conection::rest_client->get_api_core_v2_info();
+        connect(info,&Node_info::finished,this,[=]( ){
+            auto resp=Node_Conection::mqtt_client->
+                    get_outputs_unlock_condition_address("address/"+Account::addr_bech32({0,0,0},info->bech32Hrp));
+            qDebug()<<"address/+Account::addr_bech32({0,0,0},info->bech32Hrp):"<<"address/"+Account::addr_bech32({0,0,0},info->bech32Hrp);
+            connect(resp,&ResponseMqtt::returned,receiver,[=](QJsonValue data){
+                qDebug()<<"&ResponseMqtt::returned";
+                set_Lfunds(0);
             });
-            QObject::connect(connection_->mqtt_client,&QMqttClient::stateChanged,this,[=](QMqttClient::ClientState state ){
-                if(connection_->mqtt_client->state()==QMqttClient::Connected)
-                {
-                    auto resp=connection_->mqtt_client->
-                            get_outputs_unlock_condition_address("address/"+account_->addr({0,0,0}));
-                    QObject::connect(resp,&ResponseMqtt::returned,this,[=](QJsonValue data){
-                        set_Lfunds(0);
-                    });
-                }
-            });
-
+            info->deleteLater();
         });
 
-    });
+    }
+}
+NFTCreator::NFTCreator():Lfunds_(0),receiver(nullptr)
+{
+
 }
 void NFTCreator::createdBlock(qblocks::c_array bid)
 {
@@ -36,27 +39,25 @@ void NFTCreator::createdBlock(qblocks::c_array bid)
 }
 void NFTCreator::set_recaddr(QString addr_m)
 {
-    if(status_)
-    {
-        const auto addr_pair=qencoding::qbech32::Iota::decode(addr_m);
-        if(addr_pair.second.size()&&addr_pair.second!=recaddr_)
-        {
-            recaddr_=addr_pair.second;
-            emit recaddrChanged();
-        }
 
+    const auto addr_pair=qencoding::qbech32::Iota::decode(addr_m);
+    if(addr_pair.second.size()&&addr_pair.second!=recaddr_)
+    {
+        recaddr_=addr_pair.second;
+        emit recaddrChanged();
     }
+
+
 }
 void NFTCreator::tryToCreate(void)
 {
 
     if(!recaddr_.isNull())
     {
-        auto info=connection_->rest_client->get_api_core_v2_info();
-        QObject::connect(info,&Node_info::finished,connection_->rest_client,[=]( ){
+        auto info=Node_Conection::rest_client->get_api_core_v2_info();
+        QObject::connect(info,&Node_info::finished,this,[=]( ){
 
-            auto addr_bundle=account_->get_addr({0,0,0});
-            const auto address=addr_bundle.get_address<Address::Ed25519_typ>();
+            auto addr_bundle=Account::get_addr({0,0,0});
             auto varadres=recaddr_;
             auto fundAddr=std::shared_ptr<Address>(new Ed25519_Address(addr_bundle.get_hash()));
 
@@ -65,22 +66,19 @@ void NFTCreator::tryToCreate(void)
             auto RAddr=qblocks::Address::from_<QDataStream>(buffer);
 
             auto node_outputs_=new Node_outputs();
-            connection_->rest_client->get_basic_outputs(node_outputs_,"address="+address);
+            Node_Conection::rest_client->get_basic_outputs(node_outputs_,"address="+
+                                                           addr_bundle.get_address_bech32<Address::Ed25519_typ>(info->bech32Hrp));
 
             QObject::connect(node_outputs_,&Node_outputs::finished,this,[=]( ){
 
                 auto addr=addr_bundle;
-                c_array Inputs_Commitments;
-                quint64 amount=0;
-                std::vector<std::shared_ptr<qblocks::Output>> ret_outputs;
-                std::vector<std::shared_ptr<qblocks::Input>> inputs;
-
-                addr.consume_outputs(node_outputs_->outs_,0,Inputs_Commitments,amount,ret_outputs,inputs);
 
                 auto metFea=std::shared_ptr<qblocks::Feature>(new Metadata_Feature(fl_array<quint16>(metadata_)));
                 auto immetFea=std::shared_ptr<qblocks::Feature>(new Metadata_Feature(fl_array<quint16>(immetadata_)));
 
-                auto addUnlcon=std::shared_ptr<qblocks::Unlock_Condition>(new Address_Unlock_Condition(RAddr));
+                auto RaddUnlcon=std::shared_ptr<qblocks::Unlock_Condition>(new Address_Unlock_Condition(RAddr));
+                auto faddUnlcon=std::shared_ptr<qblocks::Unlock_Condition>(new Address_Unlock_Condition(fundAddr));
+
                 std::vector<std::shared_ptr<Feature>> features;
                 if(!metadata_.isNull())features.push_back(metFea);
 
@@ -89,15 +87,23 @@ void NFTCreator::tryToCreate(void)
 
 
                 auto NFTOut= std::shared_ptr<qblocks::Output>
-                        (new NFT_Output(0,{addUnlcon}, features,{},imfeatures));
+                        (new NFT_Output(0,{RaddUnlcon}, features,{},imfeatures));
 
                 auto storage_deposit= NFTOut->min_deposit_of_output(info->vByteFactorKey,info->vByteFactorData,info->vByteCost);
+
+                c_array Inputs_Commitments;
+                quint64 amount=0;
+                std::vector<std::shared_ptr<qblocks::Output>> ret_outputs;
+                std::vector<std::shared_ptr<qblocks::Input>> inputs;
+
+                addr.consume_outputs(node_outputs_->outs_,storage_deposit,Inputs_Commitments,amount,ret_outputs,inputs);
+
                 qDebug()<<"amount:"<<amount;
                 qDebug()<<"storage_deposit:"<<storage_deposit;
 
                 if(amount>=storage_deposit)
                 {
-                    auto BaOut=std::shared_ptr<qblocks::Output>(new Basic_Output(0,{addUnlcon},{},{}));
+                    auto BaOut=std::shared_ptr<qblocks::Output>(new Basic_Output(0,{faddUnlcon},{},{}));
                     const auto min_deposit=BaOut->min_deposit_of_output(info->vByteFactorKey,info->vByteFactorData,info->vByteCost);
                     qDebug()<<"min_deposit:"<<min_deposit;
                     quint64 retamount=0;
@@ -136,7 +142,7 @@ void NFTCreator::tryToCreate(void)
                     addr.create_unlocks<qblocks::Reference_Unlock>(essence_hash,unlocks);
                     auto trpay=std::shared_ptr<qblocks::Payload>(new Transaction_Payload(essence,{unlocks}));
                     auto block_=Block(trpay);
-                    connection_->rest_client->send_block(block_);
+                    Node_Conection::rest_client->send_block(block_);
 
                 }
                 else
@@ -155,11 +161,11 @@ void NFTCreator::tryToCreate(void)
 }
 QString NFTCreator::recaddr(void)const
 {
-    return qencoding::qbech32::Iota::encode(hrp_,recaddr_);
+    return qencoding::qbech32::Iota::encode(Node_Conection::rest_client->info()["protocol"].toObject()["bech32Hrp"].toString(),recaddr_);
 }
 void NFTCreator::set_metadata(QString met)
 {
-    qDebug()<<"metadata:"<<met;
+
     auto var=QJsonDocument::fromJson(met.toUtf8());
     c_array vararr;
     if(!var.isNull())
@@ -179,7 +185,7 @@ void NFTCreator::set_metadata(QString met)
 };
 void NFTCreator::set_immetadata(QString met)
 {
-    qDebug()<<"immetadata:"<<met;
+
     auto var=QJsonDocument::fromJson(met.toUtf8());
     c_array vararr;
     if(!var.isNull())
