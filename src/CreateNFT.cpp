@@ -1,213 +1,376 @@
 #include"CreateNFT.hpp"
 #include<QDataStream>
 #include<QJsonDocument>
-
+#include<QTimer>
 using namespace qblocks;
 
+QString NftBox::get_addr(const c_array& var)
+{
+    return qencoding::qbech32::Iota::encode
+            (Node_Conection::rest_client->info()["protocol"].toObject()["bech32Hrp"].toString(),var);
+}
+bool NftBox::set_addr(QString var_str,c_array& var)
+{
+    const auto addr_pair=qencoding::qbech32::Iota::decode(var_str);
+    if(addr_pair.second.size()&&addr_pair.second!=var)
+    {
+        var=addr_pair.second;
+        return true;
+    }
+    return false;
+
+}
+NftBox::NftBox(std::shared_ptr<Output> out, QObject *parent):NftBox(parent)
+{
+
+    const auto issuefea=out->get_feature_(qblocks::Feature::Issuer_typ);
+    if(issuefea)
+    {
+        issuer_=std::static_pointer_cast<const Issuer_Feature>(issuefea)->issuer()->addr();
+    }
+    const auto immetfea=out->get_immutable_feature_(qblocks::Feature::Metadata_typ);
+    if(immetfea)
+    {
+        data_=std::static_pointer_cast<const Metadata_Feature>(immetfea)->data();
+    }
+    const auto id=out->get_id();
+    address_=Address::NFT(id)->addr();
+}
+
+void NftBox::setData(QString data_m)
+{
+
+    auto var=QJsonDocument::fromJson(data_m.toUtf8());
+    c_array vararr;
+    if(!var.isNull())
+    {
+        vararr=var.toJson();
+    }
+    else
+    {
+        vararr=c_array(data_m.toUtf8());
+    }
+    if(vararr!=data_)
+    {
+        data_=vararr;
+        emit dataChanged();
+    }
+
+};
+BoxModel::BoxModel(QObject *parent)
+    : QAbstractListModel(parent){}
+
+int BoxModel::count() const
+{
+    return boxes.size();
+}
+void BoxModel::clearBoxes(bool emptyones)
+{
+
+    for (auto i=0;i<boxes.size();i++)
+    {
+        if(boxes[i]->addr_array().isNull()==emptyones)
+        {
+            rmBox(i);
+        }
+    }
+}
+pvector<const Output> BoxModel::newNFTs(Node_info* info, std::shared_ptr<const Unlock_Condition> unlock)
+{
+    pvector<const Output> var;
+    for (const auto& v:boxes)
+    {
+        if(v->addr_array().isNull())
+        {
+
+            pvector<const Feature> features;
+            if(!cIssuer_.isNull())
+            {
+                auto issuer=Feature::Issuer(Address::from_array(cIssuer_));
+                features.push_back(issuer);
+            }
+            if(!v->data_array().isNull())
+            {
+                auto metadata=Feature::Metadata(v->data_array());
+                features.push_back(metadata);
+            }
+            auto out=Output::NFT(0,{unlock},{},features);
+            out->amount_=Client::get_deposit(out,info);
+            var.push_back(out);
+        }
+    }
+    return var;
+}
+
+int BoxModel::rowCount(const QModelIndex &p) const
+{
+    Q_UNUSED(p)
+    return boxes.size();
+}
+QHash<int, QByteArray> BoxModel::roleNames() const {
+    QHash<int, QByteArray> roles;
+    roles[issuerRole] = "issuer";
+    roles[dataRole] = "data";
+    roles[addressRole] = "address";
+    return roles;
+}
+QVariant BoxModel::data(const QModelIndex &index, int role) const
+{
+    return boxes[index.row()]->property(roleNames().value(role));
+}
+bool BoxModel::setData(const QModelIndex &index, const QVariant &value, int role )
+{
+
+    const auto re=boxes[index.row()]->setProperty(roleNames().value(role),value);
+
+    if(re)
+    {
+        emit dataChanged(index,index,QList<int>{role});
+        return true;
+    }
+    return false;
+}
+bool BoxModel::setProperty(int i,QString role,const QVariant value)
+{
+    const auto ind=index(i);
+    const auto rol=roleNames().keys(role.toUtf8());
+    return setData(ind,value,rol.front());
+}
+QModelIndex BoxModel::index(int row, int column , const QModelIndex &parent ) const
+{
+    return createIndex(row,column);
+}
+void BoxModel::addBox(NftBox* o)
+{
+    int i = boxes.size();
+    beginInsertRows(QModelIndex(), i, i);
+    boxes.append(o);
+    emit countChanged(count());
+    endInsertRows();
+
+}
+void BoxModel::rmBox(int i) {
+    beginRemoveRows(QModelIndex(),i,i);
+    boxes[i]->deleteLater();
+    boxes.remove(i);
+    emit countChanged(count());
+    endRemoveRows();
+
+}
+void BoxModel::rmBoxId(c_array addr)
+{
+    for(auto i=0;i<boxes.size();i++)
+    {
+        if(boxes[i]->addr_array()==addr)
+        {
+            beginRemoveRows(QModelIndex(), i, i);
+            boxes.remove(i);
+            emit countChanged(count());
+            endRemoveRows();
+            return;
+        }
+    }
+}
+
+NFTCreator::NFTCreator(QObject *parent):QObject(parent),funds_(0),receiver(nullptr),monitor(new OutMonitor(this)),model_(new BoxModel(this)),state_(Null)
+{
+
+}
 void NFTCreator::restart (void)
 {
     if(receiver)receiver->deleteLater();
     receiver=new QObject(this);
-    emit recaddrChanged();
+    monitor->restart();
+    model_->clearBoxes(false);
     if(Node_Conection::state()==Node_Conection::Connected)
     {
-        connect(Node_Conection::rest_client,&qiota::Client::last_blockid,receiver,[=](qblocks::c_array id)
-        {
-            this->createdBlock(id);
-        });
         auto info=Node_Conection::rest_client->get_api_core_v2_info();
         connect(info,&Node_info::finished,this,[=]( ){
-            auto resp=Node_Conection::mqtt_client->
-                    get_outputs_unlock_condition_address("address/"+Account::addr_bech32({0,0,0},info->bech32Hrp));
-            qDebug()<<"address/+Account::addr_bech32({0,0,0},info->bech32Hrp):"<<"address/"+Account::addr_bech32({0,0,0},info->bech32Hrp);
-            connect(resp,&ResponseMqtt::returned,receiver,[=](QJsonValue data){
-                qDebug()<<"&ResponseMqtt::returned";
-                set_Lfunds(0);
+            setState(Ready);
+            connect(monitor,&OutMonitor::gotNewOuts,this,[=](auto  outs,auto jsonOuts)
+            {
+                checkOutputs(outs);
             });
+            const auto address=Account::addr_bech32({0,0,0},info->bech32Hrp);
+
+            monitor->getRestBasicOuts("address="+address);
+            monitor->getRestNftOuts("address="+address);
+            monitor->getRestBasicOuts("expirationReturnAddress="+address);
+            monitor->getRestNftOuts("expirationReturnAddress="+address);
+
+            monitor->subscribe("outputs/unlock/address/"+address);
+
             info->deleteLater();
         });
 
     }
 }
-NFTCreator::NFTCreator():Lfunds_(0),receiver(nullptr)
+void NFTCreator::checkOutputs(std::vector<qiota::Node_output>  outs)
 {
 
-}
-void NFTCreator::createdBlock(qblocks::c_array bid)
-{
-    emit newBlock(QString(bid.toHexString()));
-}
-void NFTCreator::set_recaddr(QString addr_m)
-{
-
-    const auto addr_pair=qencoding::qbech32::Iota::decode(addr_m);
-    if(addr_pair.second.size()&&addr_pair.second!=recaddr_)
+    quint64 total=0;
+    if(outs.size()&&(outs.front().output()->type()==Output::Basic_typ||outs.front().output()->type()==Output::NFT_typ))
     {
-        recaddr_=addr_pair.second;
-        emit recaddrChanged();
+
+        for(auto v:outs)
+        {
+            std::vector<Node_output> var{v};
+            auto bundle= Account::get_addr({0,0,0});
+            bundle.consume_outputs(var);
+
+            if(bundle.amount)
+            {
+                total+=bundle.amount;
+                total_funds.insert(v.metadata().outputid_.toHexString(),bundle.amount);
+                auto resp=Node_Conection::mqtt_client->get_outputs_outputId(v.metadata().outputid_.toHexString());
+                connect(resp,&ResponseMqtt::returned,receiver,[=](QJsonValue data){
+                    const auto node_output=Node_output(data);
+                    if(node_output.metadata().is_spent_)
+                    {
+                        auto it=total_funds.find(node_output.metadata().outputid_.toHexString());
+                        if(it!=total_funds.end())
+                        {
+                            setFunds(funds_-it.value());
+                            total_funds.erase(it);
+                            if(node_output.output()->type()==Output::NFT_typ)
+                            {
+                                const auto id=node_output.output()->get_id();
+                                model_->rmBoxId(Address::NFT(id)->addr());
+                            }
+                        }
+
+                        resp->deleteLater();
+                    }
+                });
+                if(bundle.nft_outputs.size())
+                {
+                    auto nbox=new NftBox(bundle.nft_outputs.front(),model_);
+                    model_->addBox(nbox);
+                }
+
+            }
+            if(bundle.to_unlock.size())
+            {
+                const auto unixtime=bundle.to_unlock.front();
+                const auto triger=(unixtime-QDateTime::currentDateTime().toSecsSinceEpoch())*1000;
+                QTimer::singleShot(triger+5000,receiver,[=](){
+                    auto resp=Node_Conection::mqtt_client->get_outputs_outputId(v.metadata().outputid_.toHexString());
+                    connect(resp,&ResponseMqtt::returned,receiver,[=](QJsonValue data){
+                        const auto node_output=Node_output(data);
+                        checkOutputs({node_output});
+                        resp->deleteLater();
+                    });
+                });
+            }
+            if(bundle.to_expire.size())
+            {
+                const auto unixtime=bundle.to_expire.front();
+                const auto triger=(unixtime-QDateTime::currentDateTime().toSecsSinceEpoch())*1000;
+                QTimer::singleShot(triger,receiver,[=](){
+                    auto it=total_funds.find(v.metadata().outputid_.toHexString());
+                    if(it!=total_funds.end())
+                    {
+                        setFunds(funds_-it.value());
+                        total_funds.erase(it);
+                        if(v.output()->type()==Output::NFT_typ)
+                        {
+                            const auto id=v.output()->get_id();
+                            model_->rmBoxId(Address::NFT(id)->addr());
+                        }
+                    }
+                });
+            }
+
+
+        }
+        setFunds(funds_+total);
     }
 
-
 }
-void NFTCreator::tryToCreate(void)
+
+void NFTCreator::mint(void)
 {
+    setState(Null);
+    QTimer::singleShot(15000,this,[=](){setState(Ready);});
+    auto info=Node_Conection::rest_client->get_api_core_v2_info();
+    QObject::connect(info,&Node_info::finished,this,[=]( ){
 
-    if(!recaddr_.isNull())
-    {
-        auto info=Node_Conection::rest_client->get_api_core_v2_info();
-        QObject::connect(info,&Node_info::finished,this,[=]( ){
+        auto node_outputs_=new Node_outputs();
+        auto lambda = [=]()->void {
 
-            auto addr_bundle=Account::get_addr({0,0,0});
-            auto varadres=recaddr_;
-            auto fundAddr=std::shared_ptr<Address>(new Ed25519_Address(addr_bundle.get_hash()));
+            auto bundle=Account::get_addr({0,0,0});
+            bundle.consume_outputs(node_outputs_->outs_);
 
-            auto buffer=QDataStream(&varadres,QIODevice::ReadOnly);
-            buffer.setByteOrder(QDataStream::LittleEndian);
-            auto RAddr=qblocks::Address::from_<QDataStream>(buffer);
+            const auto eddAddr=bundle.get_address();
+            const auto addUnlcon=Unlock_Condition::Address(eddAddr);
 
-            auto node_outputs_=new Node_outputs();
-            Node_Conection::rest_client->get_basic_outputs(node_outputs_,"address="+
-                                                           addr_bundle.get_address_bech32<Address::Ed25519_typ>(info->bech32Hrp));
+            auto nouts=model_->newNFTs(info,addUnlcon);
 
-            QObject::connect(node_outputs_,&Node_outputs::finished,this,[=]( ){
-
-                auto addr=addr_bundle;
-
-                auto metFea=std::shared_ptr<qblocks::Feature>(new Metadata_Feature(fl_array<quint16>(metadata_)));
-                auto immetFea=std::shared_ptr<qblocks::Feature>(new Metadata_Feature(fl_array<quint16>(immetadata_)));
-
-                auto RaddUnlcon=std::shared_ptr<qblocks::Unlock_Condition>(new Address_Unlock_Condition(RAddr));
-                auto faddUnlcon=std::shared_ptr<qblocks::Unlock_Condition>(new Address_Unlock_Condition(fundAddr));
-
-                std::vector<std::shared_ptr<Feature>> features;
-                if(!metadata_.isNull())features.push_back(metFea);
-
-                std::vector<std::shared_ptr<Feature>> imfeatures;
-                if(!immetadata_.isNull())imfeatures.push_back(immetFea);
-
-
-                auto NFTOut= std::shared_ptr<qblocks::Output>
-                        (new NFT_Output(0,{RaddUnlcon}, features,{},imfeatures));
-
-                auto storage_deposit= NFTOut->min_deposit_of_output(info->vByteFactorKey,info->vByteFactorData,info->vByteCost);
-
-                c_array Inputs_Commitments;
-                quint64 amount=0;
-                std::vector<std::shared_ptr<qblocks::Output>> ret_outputs;
-                std::vector<std::shared_ptr<qblocks::Input>> inputs;
-
-                addr.consume_outputs(node_outputs_->outs_,storage_deposit,Inputs_Commitments,amount,ret_outputs,inputs);
-
-                qDebug()<<"amount:"<<amount;
-                qDebug()<<"storage_deposit:"<<storage_deposit;
-
-                if(amount>=storage_deposit)
+            if(nouts.size())
+            {
+                auto outAmount=0;
+                for(const auto &v:nouts)outAmount+=v->amount_;
+                for(auto & v: bundle.nft_outputs)
                 {
-                    auto BaOut=std::shared_ptr<qblocks::Output>(new Basic_Output(0,{faddUnlcon},{},{}));
-                    const auto min_deposit=BaOut->min_deposit_of_output(info->vByteFactorKey,info->vByteFactorData,info->vByteCost);
-                    qDebug()<<"min_deposit:"<<min_deposit;
-                    quint64 retamount=0;
-                    if(amount>storage_deposit&&min_deposit>amount-storage_deposit)
-                    {
-                        quint64 baamount=0;
-                        addr.consume_outputs(
-                                    node_outputs_->outs_,min_deposit-(amount-storage_deposit),Inputs_Commitments,baamount,ret_outputs,inputs );
-                        qDebug()<<"baamount:"<<baamount;
-                        if(baamount>=min_deposit-(amount-storage_deposit))
-                        {
-                            BaOut->amount_=baamount+amount-storage_deposit;
-                        }
-                        else
-                        {
-                            retamount+=amount-storage_deposit;
-                        }
-                    }
-                    else
-                    {
-                        BaOut->amount_=amount-storage_deposit;
-                    }
-                    NFTOut->amount_=storage_deposit+retamount;  //one could add a storage return unlock here. here the user will pay more than the min deposit for creating th nft.
+                    v->unlock_conditions_={addUnlcon};
+                    v->amount_=Client::get_deposit(v,info);
+                    outAmount+=v->amount_;
+                    nouts.push_back(v);
+                }
+                auto BaOut=Output::Basic(0,{addUnlcon},bundle.get_tokens());
 
-                    std::vector<std::shared_ptr<qblocks::Output>> the_outputs_{NFTOut};
-                    if(BaOut->amount_)the_outputs_.push_back(BaOut);
-                    the_outputs_.insert(the_outputs_.end(), ret_outputs.begin(), ret_outputs.end());
+                if(bundle.amount>=outAmount+Client::get_deposit(BaOut,info))
+                {
+                    model_->clearBoxes();
+                    BaOut->amount_=bundle.amount-outAmount;
+                    nouts.push_back(BaOut);
+                    nouts.insert(nouts.end(), bundle.ret_outputs.begin(), bundle.ret_outputs.end());
 
-                    auto Inputs_Commitment=c_array(QCryptographicHash::hash(Inputs_Commitments, QCryptographicHash::Blake2b_256));
-                    auto essence=std::shared_ptr<qblocks::Essence>(
-                                new Transaction_Essence(info->network_id_,inputs,Inputs_Commitment,the_outputs_,nullptr));
-                    c_array serializedEssence;
-                    serializedEssence.from_object<Essence>(*essence);
-                    auto essence_hash=QCryptographicHash::hash(serializedEssence, QCryptographicHash::Blake2b_256);
-                    std::vector<std::shared_ptr<qblocks::Unlock>> unlocks;
-                    addr.create_unlocks<qblocks::Reference_Unlock>(essence_hash,unlocks);
-                    auto trpay=std::shared_ptr<qblocks::Payload>(new Transaction_Payload(essence,{unlocks}));
+                    auto Inputs_Commitment=Block::get_inputs_Commitment(bundle.Inputs_hash);
+
+                    auto essence=Essence::Transaction(info->network_id_,bundle.inputs,Inputs_Commitment,nouts);
+
+                    bundle.create_unlocks(essence->get_hash());
+
+                    auto trpay=Payload::Transaction(essence,bundle.unlocks);
+
+                    auto resp=Node_Conection::mqtt_client->get_subscription("transactions/"+trpay->get_id()+"included-block");
+                    connect(resp,&ResponseMqtt::returned,this,[=](auto var){
+                        setState(Ready);
+                        qDebug()<<"block included";
+                        resp->deleteLater();
+                    });
+
                     auto block_=Block(trpay);
                     Node_Conection::rest_client->send_block(block_);
-
                 }
                 else
                 {
-                    Lfunds_=storage_deposit-amount;
-                    emit lfundsChanged();
-
+                    emit notEnought(outAmount+Client::get_deposit(BaOut,info)-bundle.amount);
                 }
 
-                info->deleteLater();
-                node_outputs_->deleteLater();
+            }
+            info->deleteLater();
+            node_outputs_->deleteLater();
+        };
+        connect(node_outputs_,&Node_outputs::finished,receiver,[=]( ){
+            connect(node_outputs_,&Node_outputs::finished,receiver,[=]( ){
+                connect(node_outputs_,&Node_outputs::finished,receiver,[=]( ){
+                    connect(node_outputs_,&Node_outputs::finished,receiver,lambda);
+                    Node_Conection::rest_client->get_outputs<Output::NFT_typ>
+                            (node_outputs_,"expirationReturnAddress="+ Account::addr_bech32({0,0,0},info->bech32Hrp));
+                });
+                Node_Conection::rest_client->get_outputs<Output::NFT_typ>
+                        (node_outputs_,"address="+ Account::addr_bech32({0,0,0},info->bech32Hrp));
             });
+            Node_Conection::rest_client->get_outputs<Output::Basic_typ>
+                    (node_outputs_,"expirationReturnAddress="+ Account::addr_bech32({0,0,0},info->bech32Hrp));
         });
-    }
+        Node_Conection::rest_client->get_outputs<Output::Basic_typ>
+                (node_outputs_,"address="+ Account::addr_bech32({0,0,0},info->bech32Hrp));
+
+    });
+
 
 }
-QString NFTCreator::recaddr(void)const
-{
-    return qencoding::qbech32::Iota::encode(Node_Conection::rest_client->info()["protocol"].toObject()["bech32Hrp"].toString(),recaddr_);
-}
-void NFTCreator::set_metadata(QString met)
-{
 
-    auto var=QJsonDocument::fromJson(met.toUtf8());
-    c_array vararr;
-    if(!var.isNull())
-    {
-        vararr=var.toJson();
-    }
-    else
-    {
-        vararr=c_array(met.toUtf8());
-    }
-    if(vararr!=metadata_)
-    {
-        metadata_=vararr;
-        emit metadataChanged();
-    }
-
-};
-void NFTCreator::set_immetadata(QString met)
-{
-
-    auto var=QJsonDocument::fromJson(met.toUtf8());
-    c_array vararr;
-    if(!var.isNull())
-    {
-        vararr=var.toJson();
-    }
-    else
-    {
-        vararr=c_array(met.toUtf8());
-    }
-    if(vararr!=immetadata_)
-    {
-        immetadata_=vararr;
-        emit immetadataChanged();
-    }
-
-};
-QString NFTCreator::immetadata(void)const
-{
-    return QString(immetadata_);
-}
-QString NFTCreator::metadata(void)const
-{
-    return QString(metadata_);
-}

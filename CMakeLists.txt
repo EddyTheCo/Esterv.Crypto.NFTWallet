@@ -21,14 +21,19 @@ qt6_add_qml_module(nftMinter
     SOURCES
     src/CreateNFT.cpp include/CreateNFT.hpp
     QML_FILES
+    qml/TextAddress.qml
+    qml/BoxNFT.qml
+    qml/BoxMenu.qml
+    qml/ConfDrawer.qml
     qml/window.qml
     RESOURCE_PREFIX
     "/esterVtech.com/imports"
-    IMPORTS MyDesigns nodeConection account
+    IMPORTS MyDesigns nodeConection account outMonitor
     IMPORT_PATH
     ${CMAKE_BINARY_DIR}/_deps/mydesigns-build
     ${CMAKE_BINARY_DIR}/_deps/nodeconection-build
     ${CMAKE_BINARY_DIR}/_deps/account-build
+    ${CMAKE_BINARY_DIR}/_deps/outmonitor-build
 )
 
 target_link_libraries(nftMinter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick)
@@ -61,7 +66,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nodeConection)
 
-target_link_libraries(nftMinter PRIVATE MyDesigns account nodeConection QtQrGen)
+FetchContent_Declare(
+    outMonitor
+    GIT_REPOSITORY git@github.com:EddyTheCo/outMonitor.git
+    GIT_TAG main
+)
+FetchContent_MakeAvailable(outMonitor)
+
+target_link_libraries(nftMinter PRIVATE MyDesigns account nodeConection QtQrGen outMonitor)
 
 target_compile_definitions(nftMinter
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
