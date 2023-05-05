@@ -1,78 +1,152 @@
 import QtQuick
 import QtQuick.Layouts
 import MyDesigns
+import QtQuick.Controls
 
-
+import CustomStyle 1.0
 
 Rectangle
 {
     id:root
-    required property string issuer
-    required property string address
-    //required property string data
+    required property string issuer;
+    required property string address;
+    required property string metdata;
+    required property int index;
 
-    GridLayout
+    radius:5
+
+    height:((root.address)?((root.issuer)?255:240):220) + 90*metframe.collapsed
+    color:CustomStyle.backColor1.lighter(1.4)
+
+    ColumnLayout
     {
-        id:grid
-        anchors.fill: parent
-        columns: parent.width > 350 ? 2 : 1
-        rows : parent.width > 350 ? 1 : 2
+        id:dat
+        width:parent.width*0.95
+        height:parent.height*0.95
+        anchors.centerIn: parent
 
-        MyRadioButton
+        RowLayout
         {
-            id: isissuer
-            Layout.minimumWidth: (grid.columns===2)?50:25
-            Layout.maximumWidth: 75
-            Layout.maximumHeight: width
-            Layout.minimumHeight: width
-            Layout.alignment: (grid.columns===2)?(Qt.AlignTop|Qt.AlignRight):(Qt.AlignBottom|Qt.AlignHCenter)
-            Layout.fillHeight: true
+            Layout.alignment: (Qt.AlignTop)
             Layout.fillWidth: true
-            checked: root.address===root.ListView.view.model.cissuer
-            visible: root.address!=""
-            onPressed: {
-                root.ListView.view.model.cissuer=root.address
+            Layout.fillHeight:  true
+            Layout.maximumHeight: 60
+            Layout.minimumHeight: 20
+            Text
+            {
+                id:nfttext
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.alignment: Qt.AlignLeft|Qt.AlignTop
+                text: "NFT #" + (root.index+1)
+                fontSizeMode:Text.VerticalFit
+
+                font: CustomStyle.h1
+                color: CustomStyle.frontColor2
+            }
+
+            MyCheckBox
+            {
+                id: isissuer
+                Layout.alignment: Qt.AlignRight|Qt.AlignTop
+                checked: root.address===root.ListView.view.model.cissuer
+                visible: root.address
+
+                text:qsTr("Use as issuer")
+                nextCheckState: function() {
+
+                    if(isissuer.checked)
+                    {
+                        root.ListView.view.model.unsetCissuer();
+                        return Qt.Unchecked
+                    }
+                    else
+                    {
+                        root.ListView.view.model.cissuer=root.address;
+                        return Qt.Checked
+                    }
+                }
+            }
+            MyButton
+            {
+                id: rmv
+                Layout.alignment: Qt.AlignRight|Qt.AlignTop
+                visible: !root.address
+                background: Rectangle{color:"transparent"}
+                text:qsTr("X")
+                onClicked:
+                {
+                    root.ListView.view.model.rmBox(index);
+                }
+
+            }
+
+
+        }
+
+        Item
+        {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.maximumHeight: 60
+            Layout.minimumHeight: ((root.address)?18:0)+((root.issuer)?18:0)+5
+            Layout.alignment: Qt.AlignTop
+            Column
+            {
+                id:datcolumn
+                anchors.fill: parent
+                TextAddress
+                {
+                    id:taddr
+                    visible:root.address
+                    width:Math.min(parent.width,implicitWidth)
+                    height:implicitHeight
+                    description:"Address"
+                    address:root.address
+                    color:"white"
+                }
+                TextAddress
+                {
+                    id:tissuer
+                    visible:root.issuer
+                    width:Math.min(parent.width,implicitWidth)
+                    height:implicitHeight
+                    description:"Issuer"
+                    address:root.issuer
+                    color:"white"
+                }
             }
         }
-        ColumnLayout
-        {
-            id:dat
-            Layout.minimumWidth: 250
-            Layout.minimumHeight: 100
-            Layout.fillHeight: true
+
+
+        MyFrame{
+            id:metframe
+            visible:root.metdata||!root.address
+            description: qsTr("Metadata")
             Layout.fillWidth: true
-            Layout.alignment: (grid.columns===2)?(Qt.AlignTop|Qt.AlignLeft):(Qt.AlignTop|Qt.AlignHCenter)
+            Layout.fillHeight: true
 
-            TextAddress
-            {
-                id:taddr
-                visible:root.address!=""
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignTop
-                description:"Address"
-                address:root.address
-                color:"white"
+            Layout.alignment: Qt.AlignTop
+            ScrollView {
+                id:scrl
+                visible:metframe.collapsed
+                anchors.fill: parent
+                TextArea
+                {
+                    id:metadata
+                    visible:metframe.collapsed
+                    readOnly:root.address
+                    placeholderText: (root.address)?"":qsTr('{\n"standard": "IRC27",\n"type": "image/jpeg",\n"version": "v1.0"\n}')
+                    anchors.fill: parent
+                    text: (root.address)?root.metdata:"";
+                    onEditingFinished: root.ListView.view.model.setProperty(index,"metdata",metadata.text);
+                    color:CustomStyle.frontColor1
+                    placeholderTextColor:CustomStyle.midColor1
+                }
             }
-            TextAddress
-            {
-                id:tissuer
-                visible:root.issuer!=""
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignTop
-                description:"Issuer"
-                address:root.issuer
-                color:"white"
-            }
-            MyTextArea
-            {
-                visible:root.address===""||root.data!==""
-                label.visible:false
-                textarea.readOnly:root.address!==""
-            }
-
         }
     }
 
 }
+
+

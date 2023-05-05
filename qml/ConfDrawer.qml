@@ -8,6 +8,12 @@ Drawer
 {
     id: drawer
     closePolicy: Popup.CloseOnPressOutside
+    focus:false
+    modal:false
+    background: Rectangle
+    {
+        color:CustomStyle.backColor1
+    }
 
     ColumnLayout  //is better to use a ScrollView here
     {
@@ -18,6 +24,7 @@ Drawer
             id:conn_
             Layout.fillWidth: true
             Layout.minimumHeight: 30
+            collapsed:1.0
         }
         AccountQml
         {
