@@ -13,10 +13,10 @@ find_package(Qt6 COMPONENTS Quick)
 find_package(Qt6 COMPONENTS Qml)
 
 
-qt_add_executable(nftMinter main.cpp)
+qt_add_executable(nftminter main.cpp)
 
-qt6_add_qml_module(nftMinter
-    URI  NFT_Minter
+qt6_add_qml_module(nftminter
+    URI  NftMinter
     VERSION 1.0
     SOURCES
     src/CreateNFT.cpp include/CreateNFT.hpp
@@ -35,9 +35,15 @@ qt6_add_qml_module(nftMinter
     ${CMAKE_BINARY_DIR}/_deps/account-build
     ${CMAKE_BINARY_DIR}/_deps/outmonitor-build
 )
+qt_add_resources(nftminter "nftminter.fonts"
+    PREFIX "/esterVtech.com/imports/NftMinter"
+    FILES
+        "fonts/Anton/Anton-Regular.ttf"
+        "fonts/Permanent_Marker/PermanentMarker-Regular.ttf"
+)
 
-target_link_libraries(nftMinter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick)
-target_include_directories(nftMinter PUBLIC include)
+target_link_libraries(nftminter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick)
+target_include_directories(nftminter PUBLIC include)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -73,16 +79,16 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(outMonitor)
 
-target_link_libraries(nftMinter PRIVATE MyDesigns account nodeConection QtQrGen outMonitor)
+target_link_libraries(nftminter PRIVATE MyDesigns account nodeConection QtQrGen outMonitor)
 
-target_compile_definitions(nftMinter
+target_compile_definitions(nftminter
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 
 if(EMSCRIPTEN)
     add_custom_command(
-        TARGET nftMinter
+        TARGET nftminter
         POST_BUILD
         COMMAND ${CMAKE_COMMAND}
-        ARGS -E copy "${CMAKE_CURRENT_BINARY_DIR}/nftMinter.js" "${CMAKE_CURRENT_BINARY_DIR}/nftMinter.wasm" "${CMAKE_CURRENT_BINARY_DIR}/qtloader.js" "${CMAKE_CURRENT_SOURCE_DIR}/wasm"
+        ARGS -E copy "${CMAKE_CURRENT_BINARY_DIR}/nftminter.js" "${CMAKE_CURRENT_BINARY_DIR}/nftminter.wasm" "${CMAKE_CURRENT_BINARY_DIR}/qtloader.js" "${CMAKE_CURRENT_SOURCE_DIR}/wasm"
     )
 endif()
