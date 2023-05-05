@@ -5,26 +5,26 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="https://cdn.korzh.com/metroui/v4.5.1/css/metro-all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+		<script src="https://cdn.korzh.com/metroui/v4.5.1/js/metro.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 		<link href='https://fonts.googleapis.com/css?family=Allerta Stencil' rel='stylesheet'>
 		<link href='https://fonts.googleapis.com/css?family=Ubuntu Condensed' rel='stylesheet'>
-		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 		<script type="text/javascript" src="qtloader.js"></script>
 		<script type="text/javascript" src="js/initQTwasm.js"></script>
+		<script type="text/javascript" src="js/scripts.js"></script>
 		<link rel="stylesheet" href="style.css">
-		<script>
-			function init()
-			{
-							qtLoader = initQTwasm('.', 'nftMinter', '#qtrootDiv', 'img/qtlogo.svg');
-						}
-
-		</script>
 
 		<title>Nft Minter</title>
 	</head>
 	<body onload="init()">
-		<div class="pair">
-			<div class="playArea" style="float:left;width:100%;height:100%">
-				<div style="position: absolute;top: 2%;left:8%;width: 84%; height:88%;" id="qtrootDiv">
+		<div class="pair" data-role="splitter" data-on-resize-split="resizeSplitX" class="h-100" data-split-sizes="40, 60" >
+			<div class="codeArea d-flex flex-justify-center flex-align-center">
+				<div id="editor" style="margin:0px;">
+				</div>
+			</div>
+			<div data-role="splitter" data-split-mode="vertical" data-on-resize-split="resizeSplitX" data-split-sizes="90, 10" >
+				<div class="playArea d-flex flex-justify-center flex-align-center" id="qtrootDiv"></div>
+				<div class="d-flex flex-justify-center flex-align-center" >
 				</div>
 			</div>
 		</div>
