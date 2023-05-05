@@ -1,10 +1,10 @@
 # [NftMinter](https://eddytheco.github.io/NftMinter/wasm/index.html)
 
-This repo produce a wasm application that can mint NFTs on the Shimmer network of IOTA.
+This repo produce a wasm application that can mint NFTs on networks of IOTA with stardust protocol.
 
 In order to use the application one needs to set the address of the node to connect.
 The Proof of Work has to be performed by the node (by setting the JWT for protected routes, by enabling PoW in the node...).
-In principle it will also work for the shimmer mainnet by setting the node to a mainnet one(I have not tried).
+In principle it will also work for mainnets by setting the node to a mainnet one(I have not tried).
 This application is meant to be used on the testnet.
 If using the mainnet **you are the ONLY responsible for the eventual loss of your funds**.
 
