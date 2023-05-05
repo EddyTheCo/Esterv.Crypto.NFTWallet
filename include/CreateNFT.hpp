@@ -19,7 +19,7 @@ class NftBox :public QObject
 
     Q_PROPERTY(QString  issuer READ issuer CONSTANT)
     Q_PROPERTY(QString  address READ address CONSTANT)
-    Q_PROPERTY(QString  data READ data WRITE setData NOTIFY dataChanged)
+    Q_PROPERTY(QString  metdata READ metdata WRITE setMetdata NOTIFY metdataChanged)
     QML_ELEMENT
 
 public:
@@ -31,19 +31,19 @@ public:
 
     static bool set_addr(QString var_str,c_array& var);
 
-    QString data()const{return QString(data_);}
+    QString metdata()const{return (data_.isEmpty())?QString():QString(data_);}
     QString issuer()const{return get_addr(issuer_);}
     QString address()const{return get_addr(address_);}
     c_array addr_array()const{return address_;}
     c_array data_array()const{return data_;}
 
-    void setData(QString data);
+    void setMetdata(QString data);
 
 
 signals:
     void issuerChanged();
     void addressChanged();
-    void dataChanged();
+    void metdataChanged();
 private:
     c_array issuer_,address_,data_;
 
@@ -53,15 +53,17 @@ class BoxModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
+    Q_PROPERTY(int newBoxes READ newBoxes NOTIFY newBoxesChanged)
     Q_PROPERTY(QString cissuer READ cissuer WRITE setCissuer NOTIFY cIssuerChanged)
     QML_ELEMENT
 
 public:
     enum ModelRoles {
         issuerRole = Qt::UserRole + 1,
-        dataRole,addressRole};
+        metdataRole,addressRole};
 
     int count() const;
+    int newBoxes()const{return newBoxes_;}
     explicit BoxModel(QObject *parent = nullptr);
     pvector<const Output> newNFTs(Node_info*,std::shared_ptr<const Unlock_Condition> unlock);
     void clearBoxes(bool emptyones=true);
@@ -76,6 +78,13 @@ public:
     Q_INVOKABLE void newBox(void)
     {
         addBox(new NftBox(this));
+        newBoxes_++;
+        emit newBoxesChanged();
+    };
+    Q_INVOKABLE void unsetCissuer(void)
+    {
+        cIssuer_=c_array();
+        emit cIssuerChanged();
     };
     void addBox(NftBox* nbox);
     Q_INVOKABLE void rmBox(int i);
@@ -93,9 +102,10 @@ public:
 signals:
     void countChanged(int count);
     void cIssuerChanged();
+    void newBoxesChanged();
 
 private:
-    int m_count;
+    int m_count,newBoxes_;
     QList<NftBox*> boxes;
     c_array cIssuer_;
 };
@@ -106,9 +116,10 @@ class NFTCreator : public QObject
 
     Q_OBJECT
 
-    Q_PROPERTY(quint64  funds READ funds  NOTIFY fundsChanged)
+    Q_PROPERTY(QJsonObject  funds READ funds  NOTIFY fundsChanged)
     Q_PROPERTY(BoxModel*  model READ model  CONSTANT)
     Q_PROPERTY(Stte  state READ state  NOTIFY stateChanged)
+    Q_PROPERTY(QString recAddress READ recAddress WRITE setRecAddress NOTIFY recAddressChanged)
     QML_ELEMENT
     QML_SINGLETON
 
@@ -119,13 +130,23 @@ public:
             Ready,
         };
     Q_ENUM(Stte)
-    Q_INVOKABLE void mint(void);
+    Q_INVOKABLE void mint(bool issend=false);
+    Q_INVOKABLE void send(void){mint(true);}
     Q_INVOKABLE void restart(void);
     Stte state()const{return state_;}
     void setState(Stte state_m){if(state_m!=state_){state_=state_m;emit stateChanged();}};
 
-    quint64 funds(void)const{return funds_;}
-    void setFunds(quint64 funds_m){if(funds_!=funds_m){funds_=funds_m;emit fundsChanged();}}
+    void setRecAddress(QString addr)
+    {
+        if(NftBox::set_addr(addr,recAddress_))emit recAddressChanged();
+    }
+    QString recAddress()const
+    {
+        return NftBox::get_addr(recAddress_);
+    }
+
+    QJsonObject funds(void)const{return funds_json;}
+    void setFunds(quint64 funds_m);
     BoxModel* model()const{return model_;}
 
 
@@ -133,8 +154,9 @@ signals:
     void fundsChanged();
     void created(void);
     void newBlock(QString);
-    void notEnought(quint64);
+    void notEnought(QJsonObject);
     void stateChanged();
+    void recAddressChanged();
 
 private:
 
@@ -142,10 +164,12 @@ private:
     void createdBlock(qblocks::c_array);
     OutMonitor* monitor;
     quint64 funds_;
+    QJsonObject funds_json;
     QObject* receiver;
     QHash<QString,quint64> total_funds;
     BoxModel* model_;
     Stte state_;
+    c_array recAddress_;
 
 };
 
