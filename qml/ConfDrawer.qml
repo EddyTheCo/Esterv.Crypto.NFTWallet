@@ -8,8 +8,8 @@ Drawer
 {
     id: drawer
     closePolicy: Popup.CloseOnPressOutside
-    focus:false
-    modal:false
+    focus:true
+    modal:true
     background: Rectangle
     {
         color:CustomStyle.backColor1
