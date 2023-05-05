@@ -199,12 +199,16 @@ void NFTCreator::restart (void)
         auto info=Node_Conection::rest_client->get_api_core_v2_info();
         connect(info,&Node_info::finished,this,[=]( ){
             setState(Ready);
-            connect(monitor,&OutMonitor::gotNewOuts,receiver,[=](auto  outs,auto jsonOuts)
+            connect(monitor,&OutMonitor::finished,receiver,[=](auto  outs,auto jsonOuts)
+            {
+                checkOutputs(outs);
+            });
+            connect(monitor,&OutMonitor::gotNewOutsMqtt,receiver,[=](auto  outs,auto jsonOuts)
             {
                 checkOutputs(outs);
             });
             const auto address=Account::addr_bech32({0,0,0},info->bech32Hrp);
-
+            monitor->setRestCalls(4);
             monitor->getRestBasicOuts("address="+address);
             monitor->getRestNftOuts("address="+address);
             monitor->getRestBasicOuts("expirationReturnAddress="+address);
@@ -312,18 +316,17 @@ void NFTCreator::mint(bool issend)
     auto info=Node_Conection::rest_client->get_api_core_v2_info();
     QObject::connect(info,&Node_info::finished,this,[=]( ){
 
-
-        auto node_outputs_=new Node_outputs();
-        auto lambda = [=]()->void {
-
+        auto mintmonitor=new OutMonitor(receiver);
+        connect(mintmonitor,&OutMonitor::finished,receiver,[=](auto  outs,auto jsonOuts)
+        {
             auto bundle=Account::get_addr({0,0,0});
-            bundle.consume_outputs(node_outputs_->outs_);
+
+
+            bundle.consume_outputs(outs);
 
             const auto eddAddr=bundle.get_address();
 
-
             auto addUnlcon=Unlock_Condition::Address(eddAddr);
-
 
             if(issend&&!recAddress_.isNull())
             {
@@ -378,23 +381,16 @@ void NFTCreator::mint(bool issend)
 
             }
             info->deleteLater();
-            node_outputs_->deleteLater();
-        };
-        connect(node_outputs_,&Node_outputs::finished,receiver,[=]( ){
-            connect(node_outputs_,&Node_outputs::finished,receiver,[=]( ){
-                connect(node_outputs_,&Node_outputs::finished,receiver,[=]( ){
-                    connect(node_outputs_,&Node_outputs::finished,receiver,lambda);
-                    Node_Conection::rest_client->get_outputs<Output::NFT_typ>
-                            (node_outputs_,"expirationReturnAddress="+ Account::addr_bech32({0,0,0},info->bech32Hrp));
-                });
-                Node_Conection::rest_client->get_outputs<Output::NFT_typ>
-                        (node_outputs_,"address="+ Account::addr_bech32({0,0,0},info->bech32Hrp));
-            });
-            Node_Conection::rest_client->get_outputs<Output::Basic_typ>
-                    (node_outputs_,"expirationReturnAddress="+ Account::addr_bech32({0,0,0},info->bech32Hrp));
+            mintmonitor->deleteLater();
+
         });
-        Node_Conection::rest_client->get_outputs<Output::Basic_typ>
-                (node_outputs_,"address="+ Account::addr_bech32({0,0,0},info->bech32Hrp));
+        const auto address=Account::addr_bech32({0,0,0},info->bech32Hrp);
+        mintmonitor->setRestCalls(4);
+        mintmonitor->getRestBasicOuts("address="+address);
+        mintmonitor->getRestNftOuts("address="+address);
+        mintmonitor->getRestBasicOuts("expirationReturnAddress="+address);
+        mintmonitor->getRestNftOuts("expirationReturnAddress="+address);
+
 
     });
 
