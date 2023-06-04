@@ -1,0 +1,14 @@
+name: build-wasm
+run-name: ${{ github.actor }} ${{ github.event_name }} to ${{ github.base_ref }} 
+on:
+  push:
+    tags:
+      - 'wasm*'
+jobs:
+  build_html:
+    uses: EddyTheCo/Common/.github/workflows/build-wasm.yml@main
+    permissions:
+      pages: write
+      id-token: write
+    with:
+      qtModules: 'qtwebsockets qtshadertools' 
