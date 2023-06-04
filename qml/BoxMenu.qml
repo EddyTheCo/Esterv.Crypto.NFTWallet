@@ -24,8 +24,8 @@ Rectangle
             Layout.alignment: Qt.AlignCenter
             Layout.margins: 5
             description: qsTr("Account")
-            address:Account.addr_bech32([0,0,0],Node_Conection.info().protocol.bech32Hrp)
-            color:"white"
+            address: (Node_Conection.state)?Account.addr_bech32([0,0,0],Node_Conection.info().protocol.bech32Hrp):''
+            color: CustomStyle.frontColor1
         }
         Text
         {
@@ -42,7 +42,7 @@ Rectangle
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignCenter
             font:CustomStyle.h2
-            jsob:NFTCreator.funds
+            jsob:(Node_Conection.state)?NFTCreator.funds:{}
             horizontalAlignment:Text.AlignHCenter
             fontSizeMode:Text.Fit
         }
@@ -110,13 +110,19 @@ Rectangle
     Connections {
         target: Account
         function onSeedChanged() {
-            addr.address=Account.addr_bech32([0,0,0],Node_Conection.info().protocol.bech32Hrp);
+            if(Node_Conection.state===Node_Conection.Connected)
+            {
+                addr.address=Account.addr_bech32([0,0,0],Node_Conection.info().protocol.bech32Hrp);
+            }
         }
     }
     Connections {
         target: Node_Conection
         function onStateChanged() {
-            addr.address=Account.addr_bech32([0,0,0],Node_Conection.info().protocol.bech32Hrp);
+            if(Node_Conection.state===Node_Conection.Connected)
+            {
+                addr.address=Account.addr_bech32([0,0,0],Node_Conection.info().protocol.bech32Hrp);
+            }
         }
     }
 
