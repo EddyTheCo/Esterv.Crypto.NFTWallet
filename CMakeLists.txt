@@ -68,21 +68,21 @@ FetchContent_MakeAvailable(qrCode)
 FetchContent_Declare(
 	MyDesigns
 	GIT_REPOSITORY https://github.com/EddyTheCo/MyDesigns.git
-	GIT_TAG testing
+	GIT_TAG develop
 	FIND_PACKAGE_ARGS 0 CONFIG
 	)
 FetchContent_MakeAvailable(MyDesigns)
 FetchContent_Declare(
 	account
 	GIT_REPOSITORY https://github.com/EddyTheCo/account.git
-	GIT_TAG testing
+	GIT_TAG develop
 	FIND_PACKAGE_ARGS 0 CONFIG
 	)
 FetchContent_MakeAvailable(account)
 FetchContent_Declare(
 	nodeConection
 	GIT_REPOSITORY https://github.com/EddyTheCo/ConectionSettings.git
-	GIT_TAG testing
+	GIT_TAG develop
 	FIND_PACKAGE_ARGS 0 CONFIG
 	)
 FetchContent_MakeAvailable(nodeConection)
@@ -90,7 +90,7 @@ FetchContent_MakeAvailable(nodeConection)
 FetchContent_Declare(
 	outMonitor
 	GIT_REPOSITORY https://github.com/EddyTheCo/outMonitor.git
-	GIT_TAG testing
+	GIT_TAG develop
 	FIND_PACKAGE_ARGS 0 CONFIG
 	)
 FetchContent_MakeAvailable(outMonitor)
