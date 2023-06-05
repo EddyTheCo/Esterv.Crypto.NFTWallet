@@ -15,11 +15,7 @@ One could also save the produced seed just in case.
 Although you can set a seed  for recovering, **you should not input your personal seeds to the app**(read again the bold phrases).
 
 
-I hope you find it useful.
-If you like it and want to help on paying the education of my 2 future kids consider donating some iotas to the address below
-or help me on the development. 
 
-![](address.png) 
 
 
 
