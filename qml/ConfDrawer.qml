@@ -3,7 +3,7 @@ import QtQuick
 import QtQuick.Layouts
 import nodeConection
 import account
-
+import CustomStyle 1.0
 Drawer
 {
     id: drawer

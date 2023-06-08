@@ -14,6 +14,7 @@ int main(int argc, char *argv[])
     engine.addImportPath("_deps/mydesigns-build/");
     engine.addImportPath("_deps/account-build/");
     engine.addImportPath("_deps/nodeconection-build/");
+    engine.addImportPath("_deps/outmonitor-build/");
     qDebug()<<engine.importPathList();
 
     qmlRegisterSingletonType(QUrl(u"qrc:/esterVtech.com/imports/MyDesigns/qml/CustomStyle.qml"_qs), "CustomStyle", 1, 0, "CustomStyle");
