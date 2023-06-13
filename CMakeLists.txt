@@ -68,7 +68,7 @@ FetchContent_MakeAvailable(qrCode)
 FetchContent_Declare(
 	MyDesigns
 	GIT_REPOSITORY https://github.com/EddyTheCo/MyDesigns.git
-	GIT_TAG v0.0.2 
+	GIT_TAG v0.1.1 
 	FIND_PACKAGE_ARGS 0 CONFIG
 	)
 FetchContent_MakeAvailable(MyDesigns)
