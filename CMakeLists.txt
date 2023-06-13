@@ -2,92 +2,152 @@ cmake_minimum_required(VERSION 3.16)
 
 include(local_conf.cmake OPTIONAL)
 
-project(IOTA VERSION 0.1 LANGUAGES CXX)
+include(FetchContent)
+FetchContent_Declare(
+	ccommon
+	GIT_REPOSITORY https://github.com/EddyTheCo/Common.git
+	GIT_TAG main
+	)
+FetchContent_MakeAvailable(ccommon)
+version_from_git(
+	LOG       OFF
+	TIMESTAMP "%Y%m%d%H%M%S"
+	)
+project(IOTAQml VERSION ${VERSION} LANGUAGES CXX)
 
-set(CMAKE_AUTOMOC ON)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+include(GNUInstallDirs)
 
-find_package(Qt6 COMPONENTS Core)
-find_package(Qt6 COMPONENTS Gui)
-find_package(Qt6 COMPONENTS Quick)
-find_package(Qt6 COMPONENTS Qml)
+find_package(Qt6 COMPONENTS Core Gui Quick Qml REQUIRED)
 
+qt_standard_project_setup()
 
 qt_add_executable(nftminter main.cpp)
 
 qt6_add_qml_module(nftminter
-    URI  NftMinter
-    VERSION 1.0
-    SOURCES
-    src/CreateNFT.cpp include/CreateNFT.hpp
-    QML_FILES
-    qml/BoxNFT.qml
-    qml/BoxMenu.qml
-    qml/ConfDrawer.qml
-    qml/window.qml
-    RESOURCE_PREFIX
-    "/esterVtech.com/imports"
-    IMPORTS MyDesigns nodeConection account outMonitor
-    IMPORT_PATH
-    ${CMAKE_BINARY_DIR}/_deps/mydesigns-build
-    ${CMAKE_BINARY_DIR}/_deps/nodeconection-build
-    ${CMAKE_BINARY_DIR}/_deps/account-build
-    ${CMAKE_BINARY_DIR}/_deps/outmonitor-build
-)
+	URI  NftMinter
+	VERSION 1.0
+	SOURCES
+	src/CreateNFT.cpp include/CreateNFT.hpp
+	QML_FILES
+	qml/BoxNFT.qml
+	qml/BoxMenu.qml
+	qml/ConfDrawer.qml
+	qml/window.qml
+	RESOURCE_PREFIX
+	"/esterVtech.com/imports"
+	IMPORTS MyDesigns nodeConection account outMonitor
+	IMPORT_PATH
+	${CMAKE_BINARY_DIR}/_deps/mydesigns-build
+	${CMAKE_BINARY_DIR}/_deps/nodeconection-build
+	${CMAKE_BINARY_DIR}/_deps/account-build
+	${CMAKE_BINARY_DIR}/_deps/outmonitor-build
+	)
 qt_add_resources(nftminter "nftminter.fonts"
-    PREFIX "/esterVtech.com/imports/NftMinter"
-    FILES
-        "fonts/Anton/Anton-Regular.ttf"
-        "fonts/Permanent_Marker/PermanentMarker-Regular.ttf"
-)
+	PREFIX "/esterVtech.com/imports/NftMinter"
+	FILES
+	"fonts/Anton/Anton-Regular.ttf"
+	"fonts/Permanent_Marker/PermanentMarker-Regular.ttf"
+	)
 
 target_link_libraries(nftminter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick)
-target_include_directories(nftminter PUBLIC include)
 
-include(FetchContent)
+
 FetchContent_Declare(
-    qrCode
-    GIT_REPOSITORY git@github.com:EddyTheCo/qrCode.git
-    GIT_TAG main
-)
+	qrCode
+	GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
+	GIT_TAG v0.0.1
+	FIND_PACKAGE_ARGS 0 CONFIG
+	)
 FetchContent_MakeAvailable(qrCode)
 
 FetchContent_Declare(
-    MyDesigns
-    GIT_REPOSITORY git@github.com:EddyTheCo/MyDesigns.git
-    GIT_TAG main
-)
+	MyDesigns
+	GIT_REPOSITORY https://github.com/EddyTheCo/MyDesigns.git
+	GIT_TAG v0.0.2 
+	FIND_PACKAGE_ARGS 0 CONFIG
+	)
 FetchContent_MakeAvailable(MyDesigns)
 FetchContent_Declare(
-    account
-    GIT_REPOSITORY git@github.com:EddyTheCo/account.git
-    GIT_TAG main 
-)
+	account
+	GIT_REPOSITORY https://github.com/EddyTheCo/account.git
+	GIT_TAG v0.1.1
+	FIND_PACKAGE_ARGS 0 CONFIG
+	)
 FetchContent_MakeAvailable(account)
 FetchContent_Declare(
-    nodeConection
-    GIT_REPOSITORY git@github.com:EddyTheCo/ConectionSettings.git
-    GIT_TAG main
-)
+	nodeConection
+	GIT_REPOSITORY https://github.com/EddyTheCo/ConectionSettings.git
+	GIT_TAG v0.1.3
+	FIND_PACKAGE_ARGS 0 CONFIG
+	)
 FetchContent_MakeAvailable(nodeConection)
 
 FetchContent_Declare(
-    outMonitor
-    GIT_REPOSITORY git@github.com:EddyTheCo/outMonitor.git
-    GIT_TAG main
-)
+	outMonitor
+	GIT_REPOSITORY https://github.com/EddyTheCo/outMonitor.git
+	GIT_TAG v0.1.1
+	FIND_PACKAGE_ARGS 0 CONFIG
+	)
 FetchContent_MakeAvailable(outMonitor)
 
 target_link_libraries(nftminter PRIVATE MyDesigns account nodeConection QtQrGen outMonitor)
+set_target_properties(nftminter PROPERTIES
+	WIN32_EXECUTABLE ON
+	MACOSX_BUNDLE ON
+	)
 
-target_compile_definitions(nftminter
-    PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
+target_include_directories(nftminter PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/nftMinter>)
+
+install(TARGETS nftminter ${out_targets_var}
+	EXPORT nftminterTargets
+	DESTINATION ${CMAKE_INSTALL_BINDIR}
+	)
+install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/nftMinter
+	)
+install(EXPORT nftminterTargets
+	FILE nftminterTargets.cmake
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+	)
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+	"${CMAKE_CURRENT_BINARY_DIR}/nftminterConfig.cmake"
+	INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+	)
+write_basic_package_version_file(
+	"${CMAKE_CURRENT_BINARY_DIR}/nftminterConfigVersion.cmake"
+	VERSION ${VERSION}
+	COMPATIBILITY SameMajorVersion
+	)
+install(FILES
+	${CMAKE_CURRENT_BINARY_DIR}/nftminterConfig.cmake
+	${CMAKE_CURRENT_BINARY_DIR}/nftminterConfigVersion.cmake
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+	)
+export(EXPORT nftminterTargets
+	FILE "${CMAKE_CURRENT_BINARY_DIR}/nftminterTargets.cmake"
+	)
 
 if(EMSCRIPTEN)
-    add_custom_command(
-        TARGET nftminter
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND}
-        ARGS -E copy "${CMAKE_CURRENT_BINARY_DIR}/nftminter.js" "${CMAKE_CURRENT_BINARY_DIR}/nftminter.wasm" "${CMAKE_CURRENT_BINARY_DIR}/qtloader.js" "${CMAKE_CURRENT_SOURCE_DIR}/wasm"
-    )
+	add_custom_command(
+		TARGET nftminter
+		POST_BUILD
+		COMMAND ${CMAKE_COMMAND}
+		ARGS -E copy "${CMAKE_CURRENT_BINARY_DIR}/nftminter.js" "${CMAKE_CURRENT_BINARY_DIR}/nftminter.wasm" "${CMAKE_CURRENT_BINARY_DIR}/qtloader.js" "${CMAKE_CURRENT_SOURCE_DIR}/wasm"
+		)
+endif()
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)	
+	set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-v${SEMVER}-${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_VERSION}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_CXX_COMPILER_ID}")
+	if(USE_THREADS)
+		set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_FILE_NAME}-MThread")
+	endif(USE_THREADS)
+	include(CPack)
 endif()

@@ -1,11 +1,11 @@
 import QtQuick.Controls
 import QtQuick
 import QtQuick.Layouts
-import MyDesigns
-import nodeConection
+
 import account
 import NftMinter
-import CustomStyle 1.0
+import MyDesigns
+import nodeConection
 
 ApplicationWindow {
     visible: true
@@ -26,10 +26,9 @@ ApplicationWindow {
 
     Component.onCompleted:
     {
-        //Node_Conection.nodeaddr=""
-        //Node_Conection.jwt=""
+        Node_Conection.nodeaddr="https://3216aae.online-server.cloud"
+	Node_Conection.jwt="NODE_JWT"
         //Account.seed="9fe7bb0ec7cae8824ebb8c232338cb880a393b21bb4cbd7f35ab85d06ed84586"
-
 
         CustomStyle.h1=Qt.font({
                                    family: nftFont.font.family,
@@ -43,14 +42,6 @@ ApplicationWindow {
                                });
     }
 
-    Notification
-    {
-        id:noti
-        width:360
-        height:100
-        x:(window.width-width)*0.5
-        y: window.height*(1-0.05)-height
-    }
 
     Connections {
         target: Account
@@ -58,12 +49,14 @@ ApplicationWindow {
             NFTCreator.restart();
         }
     }
+
     Connections {
         target: NFTCreator
         function onNotEnought(amount) {
             noti.show({"message":"Not enough funds\n "+ "lack of "+ amount.largeValue.value + " "+ amount.largeValue.unit });
         }
     }
+
     Connections {
         target: Node_Conection
         function onStateChanged() {
@@ -74,6 +67,7 @@ ApplicationWindow {
             NFTCreator.restart();
         }
     }
+
     GridLayout
     {
         id:grid
@@ -131,6 +125,14 @@ ApplicationWindow {
 
 
 
+    Notification
+    {
+        id:noti
+        width:360
+        height:100
+        x:(window.width-width)*0.5
+        y: window.height*(1-0.05)-height
+    }
 
 
 }

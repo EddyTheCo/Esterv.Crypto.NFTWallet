@@ -3,7 +3,6 @@ import QtQuick.Layouts
 import MyDesigns
 import QtQuick.Controls
 
-import CustomStyle 1.0
 
 Rectangle
 {
@@ -67,19 +66,7 @@ Rectangle
                     }
                 }
             }
-            MyButton
-            {
-                id: rmv
-                Layout.alignment: Qt.AlignRight|Qt.AlignTop
-                visible: !root.address
-                background: Rectangle{color:"transparent"}
-                text:qsTr("X")
-                onClicked:
-                {
-                    root.ListView.view.model.rmBox(index);
-                }
 
-            }
 
 
         }
@@ -139,14 +126,28 @@ Rectangle
                     placeholderText: (root.address)?"":qsTr('{\n"standard": "IRC27",\n"type": "image/jpeg",\n"version": "v1.0"\n}')
                     anchors.fill: parent
                     text: (root.address)?root.metdata:"";
-                    onEditingFinished: root.ListView.view.model.setProperty(index,"metdata",metadata.text);
+                    onEditingFinished: root.ListView.view.model.setProperty(root.index,"metdata",metadata.text);
                     color:CustomStyle.frontColor1
                     placeholderTextColor:CustomStyle.midColor1
                 }
             }
         }
     }
+    CloseButton
+    {
+        id: rmv
+        anchors.right: root.right
+        anchors.top: root.top
+        anchors.margins: 10
+        width:14
+        height:14
+        visible: !root.address
+        onClose:
+        {
+            root.ListView.view.model.rmBox(root.index);
+        }
 
+    }
 }
 
 
