@@ -12,4 +12,6 @@ jobs:
       pages: write
       id-token: write
     with:
-      qtModules: 'qtwebsockets qtshadertools' 
+      qtModules: 'qtwebsockets qtshadertools'
+    secrets:
+      NODE_JWT: ${{ secrets.NODE_JWT }}
