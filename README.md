@@ -1,4 +1,4 @@
-# [NftMinter](https://eddytheco.github.io/NftMinter/wasm/index.html)
+# [NftMinter](https://eddytheco.github.io/NftMinter/index.html)
 
 This repo produce an application that can mint NFTs on networks of IOTA with stardust protocol.
 
