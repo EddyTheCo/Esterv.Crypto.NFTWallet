@@ -20,8 +20,10 @@
 function initQTwasm(wasm_url, app_name, rootDivSele, logoPath) {
 	const rootDiv = document.querySelector(rootDivSele);
 	const screen = "screen" + app_name;
-	rootDiv.innerHTML += '<figure  id="qtspinner"> <center > <img id="logo" crossorigin="anonymous" src="' + logoPath + '" ></img> <div id="qtstatus"></div> </center> </figure> <div class="qtscreen" id="'+ screen +'" ></div>';
+	
 
+		rootDiv.innerHTML += '<figure  id="qtspinner"> <center > <img id="logo" crossorigin="anonymous" src="' + logoPath + '" ></img> <div id="qtstatus"></div> </center> </figure> <div class="qtscreen" id="'+ screen +'" ></div>';
+	
 	const spinner = rootDiv.querySelector('#qtspinner');
 	const canvas = rootDiv.querySelector('#'+ screen);
 	const status = rootDiv.querySelector('#qtstatus');
@@ -35,13 +37,13 @@ function initQTwasm(wasm_url, app_name, rootDivSele, logoPath) {
 		restartType: 'RestartModule',
               canvasElements : [canvas],
               showLoader: function(loaderStatus) {
-                  spinner.style.display = 'block';
+                  spinner.style.display = (logoPath)?'block':'none';
                   canvas.style.display = 'none';
                   status.innerHTML = loaderStatus + "...";
               },
               showError: function(errorText) {
                   status.innerHTML = errorText;
-                  spinner.style.display = 'block';
+                  spinner.style.display = (logoPath)?'block':'none';
                   canvas.style.display = 'none';
               },
               showExit: function() {
@@ -50,7 +52,7 @@ function initQTwasm(wasm_url, app_name, rootDivSele, logoPath) {
                       status.innerHTML += " with code " + qtLoader.exitCode;
                   if (qtLoader.exitText !== undefined)
                       status.innerHTML += " (" + qtLoader.exitText + ")";
-                  spinner.style.display = 'block';
+                  spinner.style.display = (logoPath)?'block':'none';
                   canvas.style.display = 'none';
               },
               showCanvas: function() {
