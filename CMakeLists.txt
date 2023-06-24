@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.24)
 
 include(local_conf.cmake OPTIONAL)
 
@@ -68,7 +68,7 @@ FetchContent_MakeAvailable(qrCode)
 FetchContent_Declare(
 	MyDesigns
 	GIT_REPOSITORY https://github.com/EddyTheCo/MyDesigns.git
-	GIT_TAG v0.1.1 
+	GIT_TAG v0.1.2 
 	FIND_PACKAGE_ARGS 0 CONFIG
 	)
 FetchContent_MakeAvailable(MyDesigns)
