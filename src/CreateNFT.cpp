@@ -2,10 +2,13 @@
 #include<QDataStream>
 #include<QJsonDocument>
 #include<QTimer>
+#include"mydesigns.hpp"
+
 using namespace qblocks;
 
 QString NftBox::get_addr(const c_array& var)
 {
+	auto foo=fooDesign::fooPrint();
 	return (var.isNull())?QString():qencoding::qbech32::Iota::encode
 		(Node_Conection::rest_client->info()["protocol"].toObject()["bech32Hrp"].toString(),var);
 }
