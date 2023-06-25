@@ -142,7 +142,7 @@ Rectangle
         width:14
         height:14
         visible: !root.address
-        onClose:
+        onClicked:
         {
             root.ListView.view.model.rmBox(root.index);
         }
