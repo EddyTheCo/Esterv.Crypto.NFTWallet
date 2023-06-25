@@ -23,13 +23,10 @@ ApplicationWindow {
     {
         color:CustomStyle.backColor1
     }
-
     Component.onCompleted:
     {
-        Node_Conection.nodeaddr="https://3216aae.online-server.cloud"
-	Node_Conection.jwt="NODE_JWT"
-        //Account.seed="9fe7bb0ec7cae8824ebb8c232338cb880a393b21bb4cbd7f35ab85d06ed84586"
-
+	if(LocalConf.nodeaddr) Node_Conection.nodeaddr=LocalConf.nodeaddr;
+	if(LocalConf.jwt) Node_Conection.jwt=LocalConf.jwt;
         CustomStyle.h1=Qt.font({
                                    family: nftFont.font.family,
                                    weight: nftFont.font.weight,
