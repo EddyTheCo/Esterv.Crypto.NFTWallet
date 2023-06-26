@@ -51,12 +51,6 @@ qt6_add_qml_module(nftminter
 	qml/LocalConf.qml
 	RESOURCE_PREFIX
 	"/esterVtech.com/imports"
-	IMPORTS MyDesigns nodeConection account outMonitor
-	IMPORT_PATH
-	${CMAKE_BINARY_DIR}/_deps/mydesigns-build
-	${CMAKE_BINARY_DIR}/_deps/nodeconection-build
-	${CMAKE_BINARY_DIR}/_deps/account-build
-	${CMAKE_BINARY_DIR}/_deps/outmonitor-build
 	)
 qt_add_resources(nftminter "nftminter.fonts"
 	PREFIX "/esterVtech.com/imports/NftMinter"
