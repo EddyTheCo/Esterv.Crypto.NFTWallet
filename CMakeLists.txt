@@ -60,10 +60,11 @@ qt_add_resources(nftminter "nftminter.fonts"
 	)
 
 target_link_libraries(nftminter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick)
-qt_generate_deploy_app_script(
+
+#https://www.qt.io/blog/cmake-deployment-api
+qt_generate_deploy_qml_app_script(
     TARGET nftminter
     OUTPUT_SCRIPT deploy_script
-    NO_UNSUPPORTED_PLATFORM_ERROR
 )
 install(SCRIPT ${deploy_script})
 
