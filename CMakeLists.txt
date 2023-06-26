@@ -51,12 +51,6 @@ qt6_add_qml_module(nftminter
 	qml/LocalConf.qml
 	RESOURCE_PREFIX
 	"/esterVtech.com/imports"
-	IMPORTS MyDesigns nodeConection account outMonitor
-	IMPORT_PATH
-	${CMAKE_BINARY_DIR}/_deps/mydesigns-build
-	${CMAKE_BINARY_DIR}/_deps/nodeconection-build
-	${CMAKE_BINARY_DIR}/_deps/account-build
-	${CMAKE_BINARY_DIR}/_deps/outmonitor-build
 	)
 qt_add_resources(nftminter "nftminter.fonts"
 	PREFIX "/esterVtech.com/imports/NftMinter"
@@ -112,40 +106,20 @@ set_target_properties(nftminter PROPERTIES
 	MACOSX_BUNDLE ON
 	)
 
+#https://www.qt.io/blog/cmake-deployment-api
+#qt_generate_deploy_qml_app_script(
+#    TARGET nftminter
+#    OUTPUT_SCRIPT deploy_script
+#)
+#install(SCRIPT ${deploy_script})
+
 target_include_directories(nftminter PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/nftMinter>)
 
-install(TARGETS nftminter ${out_targets_var}
-	EXPORT nftminterTargets
+install(TARGETS nftminter 
+	BUNDLE  DESTINATION .
 	DESTINATION ${CMAKE_INSTALL_BINDIR}
 	)
-install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/nftMinter
-	)
-install(EXPORT nftminterTargets
-	FILE nftminterTargets.cmake
-	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-	)
-include(CMakePackageConfigHelpers)
-
-configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
-	"${CMAKE_CURRENT_BINARY_DIR}/nftminterConfig.cmake"
-	INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-	)
-write_basic_package_version_file(
-	"${CMAKE_CURRENT_BINARY_DIR}/nftminterConfigVersion.cmake"
-	VERSION ${VERSION}
-	COMPATIBILITY SameMajorVersion
-	)
-install(FILES
-	${CMAKE_CURRENT_BINARY_DIR}/nftminterConfig.cmake
-	${CMAKE_CURRENT_BINARY_DIR}/nftminterConfigVersion.cmake
-	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-	)
-export(EXPORT nftminterTargets
-	FILE "${CMAKE_CURRENT_BINARY_DIR}/nftminterTargets.cmake"
-	)
-
 if(EMSCRIPTEN)
 	add_custom_command(
 		TARGET nftminter
