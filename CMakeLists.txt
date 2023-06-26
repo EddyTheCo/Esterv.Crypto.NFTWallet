@@ -61,12 +61,6 @@ qt_add_resources(nftminter "nftminter.fonts"
 
 target_link_libraries(nftminter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick)
 
-#https://www.qt.io/blog/cmake-deployment-api
-qt_generate_deploy_qml_app_script(
-    TARGET nftminter
-    OUTPUT_SCRIPT deploy_script
-)
-install(SCRIPT ${deploy_script})
 
 FetchContent_Declare(
 	qrCode
@@ -111,6 +105,13 @@ set_target_properties(nftminter PROPERTIES
 	WIN32_EXECUTABLE ON
 	MACOSX_BUNDLE ON
 	)
+
+#https://www.qt.io/blog/cmake-deployment-api
+#qt_generate_deploy_qml_app_script(
+#    TARGET nftminter
+#    OUTPUT_SCRIPT deploy_script
+#)
+#install(SCRIPT ${deploy_script})
 
 target_include_directories(nftminter PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/nftMinter>)
