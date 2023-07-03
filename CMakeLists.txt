@@ -58,7 +58,7 @@ FetchContent_MakeAvailable(nodeConection)
 FetchContent_Declare(
 	outMonitor
 	GIT_REPOSITORY https://github.com/EddyTheCo/outMonitor.git
-	GIT_TAG v0.1.1
+	GIT_TAG v0.1.2
 	FIND_PACKAGE_ARGS 0 CONFIG
 	)
 FetchContent_MakeAvailable(outMonitor)
