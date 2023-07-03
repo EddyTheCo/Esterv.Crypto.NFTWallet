@@ -15,7 +15,7 @@ One could also save the produced seed just in case.
 Although you can set a seed  for recovering, **you should not input your personal seeds to the app**(read again the bold phrases).
 
 
+### Yocto layer
 
-
-
+An example of an Openembedded layer that run this application after boot can be found [here](https://github.com/EddyTheCo/meta-evt).
 

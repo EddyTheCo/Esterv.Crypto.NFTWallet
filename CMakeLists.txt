@@ -33,43 +33,6 @@ find_package(Qt6 COMPONENTS Core Gui Quick Qml REQUIRED)
 qt_standard_project_setup()
 
 qt_add_executable(nftminter main.cpp)
-
-set_source_files_properties(qml/LocalConf.qml PROPERTIES
-	QT_QML_SINGLETON_TYPE TRUE
-	)
-
-qt6_add_qml_module(nftminter
-	URI  NftMinter
-	VERSION 1.0
-	SOURCES
-	src/CreateNFT.cpp include/CreateNFT.hpp
-	QML_FILES
-	qml/BoxNFT.qml
-	qml/BoxMenu.qml
-	qml/ConfDrawer.qml
-	qml/window.qml
-	qml/LocalConf.qml
-	RESOURCE_PREFIX
-	"/esterVtech.com/imports"
-	)
-qt_add_resources(nftminter "nftminter.fonts"
-	PREFIX "/esterVtech.com/imports/NftMinter"
-	FILES
-	"fonts/Anton/Anton-Regular.ttf"
-	"fonts/Permanent_Marker/PermanentMarker-Regular.ttf"
-	)
-
-target_link_libraries(nftminter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick)
-
-
-FetchContent_Declare(
-	qrCode
-	GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
-	GIT_TAG v0.0.1
-	FIND_PACKAGE_ARGS 0 CONFIG
-	)
-FetchContent_MakeAvailable(qrCode)
-
 FetchContent_Declare(
 	MyDesigns
 	GIT_REPOSITORY https://github.com/EddyTheCo/MyDesigns.git
@@ -95,10 +58,48 @@ FetchContent_MakeAvailable(nodeConection)
 FetchContent_Declare(
 	outMonitor
 	GIT_REPOSITORY https://github.com/EddyTheCo/outMonitor.git
-	GIT_TAG v0.1.1
+	GIT_TAG v0.1.2
 	FIND_PACKAGE_ARGS 0 CONFIG
 	)
 FetchContent_MakeAvailable(outMonitor)
+
+set_source_files_properties(qml/LocalConf.qml PROPERTIES
+	QT_QML_SINGLETON_TYPE TRUE
+	)
+
+qt6_add_qml_module(nftminter
+	URI  NftMinter
+	VERSION 1.0
+	SOURCES
+	src/CreateNFT.cpp include/CreateNFT.hpp
+	QML_FILES
+	qml/BoxNFT.qml
+	qml/BoxMenu.qml
+	qml/ConfDrawer.qml
+	qml/window.qml
+	qml/LocalConf.qml
+	RESOURCE_PREFIX
+	"/esterVtech.com/imports"
+	IMPORT_PATH ${QML_IMPORT_PATH}
+	)
+qt_add_resources(nftminter "nftminter.fonts"
+	PREFIX "/esterVtech.com/imports/NftMinter"
+	FILES
+	"fonts/Anton/Anton-Regular.ttf"
+	"fonts/Permanent_Marker/PermanentMarker-Regular.ttf"
+	)
+
+target_link_libraries(nftminter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick)
+
+
+FetchContent_Declare(
+	qrCode
+	GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
+	GIT_TAG v0.0.1
+	FIND_PACKAGE_ARGS 0 CONFIG
+	)
+FetchContent_MakeAvailable(qrCode)
+
 
 target_link_libraries(nftminter PRIVATE MyDesigns account nodeConection QtQrGen outMonitor)
 set_target_properties(nftminter PROPERTIES
