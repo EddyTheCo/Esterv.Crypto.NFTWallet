@@ -1,5 +1,7 @@
 # [NftMinter](https://eddytheco.github.io/NftMinter/index.html)
 
+**To be able to use the application a small payment of SMR has to be performed.**
+
 This repo produce an application that can mint NFTs on networks of IOTA with stardust protocol.
 
 In order to use the application one needs to set the address of the node to connect.
@@ -19,3 +21,15 @@ Although you can set a seed  for recovering, **you should not input your persona
 
 An example of an Openembedded layer that run this application after boot can be found [here](https://github.com/EddyTheCo/meta-evt).
 
+### CORS header 'Access-Control-Allow-Origin' missing
+
+When using the browser application and your node, the API request could be denied with the return 'Reason: CORS header 'Access-Control-Allow-Origin' missing'.
+In that case, one needs to set the Access-Control-Allow-Origin header's value as explained [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS/Errors/CORSMissingAllowOrigin).
+
+If you use the docker setup of Hornet just add 
+
+```
+- "traefik.http.middlewares.cors.headers.customResponseHeaders.Access-Control-Allow-Origin=https://eddytheco.github.io"
+- "traefik.http.routers.hornet.middlewares=cors"
+```
+to docker-compose.yml in the traefik section. Such that browser API requests from https://eddytheco.github.io are accepted  by your node.
