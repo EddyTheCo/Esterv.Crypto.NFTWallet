@@ -33,6 +33,14 @@ find_package(Qt6 COMPONENTS Core Gui Quick Qml REQUIRED)
 qt_standard_project_setup()
 
 qt_add_executable(nftminter main.cpp)
+
+FetchContent_Declare(
+        midlePay
+        GIT_REPOSITORY https://github.com/EddyTheCo/MidlePay.git
+        GIT_TAG v0.0.3
+	FIND_PACKAGE_ARGS 0 CONFIG
+	)
+FetchContent_MakeAvailable(midlePay)
 FetchContent_Declare(
 	MyDesigns
 	GIT_REPOSITORY https://github.com/EddyTheCo/MyDesigns.git
@@ -43,14 +51,14 @@ FetchContent_MakeAvailable(MyDesigns)
 FetchContent_Declare(
 	account
 	GIT_REPOSITORY https://github.com/EddyTheCo/account.git
-	GIT_TAG v0.1.2
+	GIT_TAG v0.2.1
 	FIND_PACKAGE_ARGS 0 CONFIG
 	)
 FetchContent_MakeAvailable(account)
 FetchContent_Declare(
 	nodeConection
 	GIT_REPOSITORY https://github.com/EddyTheCo/ConectionSettings.git
-	GIT_TAG v0.1.4
+	GIT_TAG v0.2.2
 	FIND_PACKAGE_ARGS 0 CONFIG
 	)
 FetchContent_MakeAvailable(nodeConection)
@@ -58,7 +66,7 @@ FetchContent_MakeAvailable(nodeConection)
 FetchContent_Declare(
 	outMonitor
 	GIT_REPOSITORY https://github.com/EddyTheCo/outMonitor.git
-	GIT_TAG v0.1.3
+	GIT_TAG v0.1.4
 	FIND_PACKAGE_ARGS 0 CONFIG
 	)
 FetchContent_MakeAvailable(outMonitor)
@@ -101,18 +109,12 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(qrCode)
 
 
-target_link_libraries(nftminter PRIVATE MyDesigns account nodeConection QtQrGen outMonitor)
+target_link_libraries(nftminter PRIVATE MyDesigns account nodeConection QtQrGen outMonitor midlePay)
 set_target_properties(nftminter PROPERTIES
 	WIN32_EXECUTABLE ON
 	MACOSX_BUNDLE ON
 	)
 
-#https://www.qt.io/blog/cmake-deployment-api
-#qt_generate_deploy_qml_app_script(
-#    TARGET nftminter
-#    OUTPUT_SCRIPT deploy_script
-#)
-#install(SCRIPT ${deploy_script})
 
 target_include_directories(nftminter PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/nftMinter>)
@@ -121,6 +123,11 @@ install(TARGETS nftminter
 	BUNDLE  DESTINATION .
 	DESTINATION ${CMAKE_INSTALL_BINDIR}
 	)
+qt_generate_deploy_qml_app_script(
+    TARGET nftminter
+    OUTPUT_SCRIPT deploy_script
+)
+install(SCRIPT ${deploy_script})
 if(EMSCRIPTEN)
 	add_custom_command(
 		TARGET nftminter
@@ -131,6 +138,7 @@ if(EMSCRIPTEN)
 endif()
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+	set(CPACK_PACKAGE_CONTACT "estervtech")
 	set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-v${SEMVER}-${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_VERSION}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_CXX_COMPILER_ID}")
 	if(USE_THREADS)
 		set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_FILE_NAME}-MThread")
