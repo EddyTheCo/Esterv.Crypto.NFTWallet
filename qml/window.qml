@@ -6,6 +6,7 @@ import account
 import NftMinter
 import MyDesigns
 import nodeConection
+import midlePay
 
 ApplicationWindow {
     visible: true
@@ -25,8 +26,8 @@ ApplicationWindow {
     }
     Component.onCompleted:
     {
-	if(LocalConf.nodeaddr) Node_Conection.nodeaddr=LocalConf.nodeaddr;
-	if(LocalConf.jwt) Node_Conection.jwt=LocalConf.jwt;
+        if(LocalConf.nodeaddr) Node_Conection.nodeaddr=LocalConf.nodeaddr;
+        if(LocalConf.jwt) Node_Conection.jwt=LocalConf.jwt;
         CustomStyle.h1=Qt.font({
                                    family: nftFont.font.family,
                                    weight: nftFont.font.weight,
@@ -63,6 +64,13 @@ ApplicationWindow {
             }
             NFTCreator.restart();
         }
+    }
+    MidlePayPop
+    {
+        initTag:"NFTCreator"
+        width:300
+        height:350
+        anchors.centerIn: Overlay.overlay
     }
 
     GridLayout
