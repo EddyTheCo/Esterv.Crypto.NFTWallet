@@ -104,19 +104,6 @@ Rectangle
                     popup_.open();
                 }
             }
-            MyButton
-            {
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                Layout.maximumWidth: 50+150*root.incolum
-                Layout.maximumHeight:  50
-                text:qsTr("Add Drops")
-                enabled:(Node_Conection.state&&NFTCreator.state)
-                onClicked:
-                {
-                    addArray.open();
-                }
-            }
         }
     }
 
@@ -193,51 +180,5 @@ Rectangle
             }
         }
     }
-    Popup
-    {
-        id:addArray
-        closePolicy: Popup.CloseOnPressOutside
-        anchors.centerIn: Overlay.overlay
-        background: Rectangle
-        {
-            id:bck2
-            color:CustomStyle.backColor1
-            border.width:1
-            border.color:CustomStyle.frontColor1
-        }
-        modal: true
-        focus: true
 
-        ColumnLayout
-        {
-            anchors.fill: parent
-
-            MyTextArea
-            {
-                id:texArr
-                label.text: "New NFTs(Json)"
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                Layout.maximumHeight: 800
-                Layout.maximumWidth: 500
-                Layout.minimumHeight: 400
-                Layout.minimumWidth: 250
-                Layout.preferredWidth: 450
-                Layout.alignment: Qt.AlignCenter
-                textarea.placeholderText:'[{\n "Immutable metadata":{\n"standard": "IRC27",\n"type": "image/jpeg",\n"version": "v1.0"\n}\n}]'
-            }
-            MyButton
-            {
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                Layout.maximumHeight: 40
-                Layout.maximumWidth: 70
-                text:qsTr("Add")
-                enabled: texArr.textarea.text!==""
-                onClicked: NFTCreator.setDropArray(texArr.textarea.text);
-                Layout.alignment: Qt.AlignVCenter|Qt.AlignRight
-            }
-        }
-
-    }
 }
