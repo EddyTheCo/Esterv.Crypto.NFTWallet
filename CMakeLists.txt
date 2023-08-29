@@ -35,9 +35,9 @@ qt_standard_project_setup()
 qt_add_executable(nftminter main.cpp)
 
 FetchContent_Declare(
-        midlePay
-        GIT_REPOSITORY https://github.com/EddyTheCo/MidlePay.git
-        GIT_TAG v0.0.3
+	midlePay
+	GIT_REPOSITORY https://github.com/EddyTheCo/MidlePay.git
+	GIT_TAG v0.0.3
 	FIND_PACKAGE_ARGS 0 CONFIG
 	)
 FetchContent_MakeAvailable(midlePay)
@@ -119,15 +119,18 @@ set_target_properties(nftminter PROPERTIES
 target_include_directories(nftminter PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/nftMinter>)
 
-install(TARGETS nftminter 
+install(TARGETS nftminter
 	BUNDLE  DESTINATION .
 	DESTINATION ${CMAKE_INSTALL_BINDIR}
 	)
-qt_generate_deploy_qml_app_script(
-    TARGET nftminter
-    OUTPUT_SCRIPT deploy_script
-)
-install(SCRIPT ${deploy_script})
+
+if(QTDEPLOY)
+	qt_generate_deploy_qml_app_script(
+		TARGET nftminter
+		OUTPUT_SCRIPT deploy_script
+		)
+	install(SCRIPT ${deploy_script})
+endif(QTDEPLOY)
 if(EMSCRIPTEN)
 	add_custom_command(
 		TARGET nftminter
