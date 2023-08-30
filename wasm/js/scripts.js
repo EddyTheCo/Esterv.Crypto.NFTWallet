@@ -1,5 +1,5 @@
 function init() {
-	qtMint=initQTwasm('.', 'nftminter', '#qtrootDiv', 'img/qtlogo.svg');
+	qtMint=initQTwasm('.', 'nftminter', '#qtrootDiv', 'img/esterlogo.png');
 	qtBuy=initQTwasm('https://eddytheco.github.io/BuyMeACoffe/', 'buymeacoffe', '#buyme', '');
 	checkModuleLoad=setInterval(function() {
                   if (qtBuy.module())
