@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
 
-
-
 if(NODE_JWT)
 	file(WRITE qml/LocalConf.qml "pragma Singleton \n import QtQuick 2.15 \n QtObject { \n property string nodeaddr:\"https://3216aae.online-server.cloud\" \n property string jwt:\"${NODE_JWT}\"\n }" )
 endif(NODE_JWT)
@@ -37,39 +35,47 @@ qt_add_executable(nftminter main.cpp)
 FetchContent_Declare(
 	midlePay
 	GIT_REPOSITORY https://github.com/EddyTheCo/MidlePay.git
-	GIT_TAG v0.0.3
-	FIND_PACKAGE_ARGS 0 CONFIG
+	GIT_TAG v0.0.4
+	FIND_PACKAGE_ARGS 0.0 CONFIG
 	)
 FetchContent_MakeAvailable(midlePay)
 FetchContent_Declare(
 	MyDesigns
 	GIT_REPOSITORY https://github.com/EddyTheCo/MyDesigns.git
-	GIT_TAG v0.2.2
-	FIND_PACKAGE_ARGS 0 CONFIG
+	GIT_TAG v0.2.3
+	FIND_PACKAGE_ARGS 0.2 CONFIG
 	)
 FetchContent_MakeAvailable(MyDesigns)
 FetchContent_Declare(
 	account
 	GIT_REPOSITORY https://github.com/EddyTheCo/account.git
-	GIT_TAG v0.2.1
-	FIND_PACKAGE_ARGS 0 CONFIG
+	GIT_TAG v0.2.2
+	FIND_PACKAGE_ARGS 0.2 CONFIG
 	)
 FetchContent_MakeAvailable(account)
 FetchContent_Declare(
 	nodeConection
 	GIT_REPOSITORY https://github.com/EddyTheCo/ConectionSettings.git
-	GIT_TAG v0.2.2
-	FIND_PACKAGE_ARGS 0 CONFIG
+	GIT_TAG v0.2.3
+	FIND_PACKAGE_ARGS 0.2 CONFIG
 	)
 FetchContent_MakeAvailable(nodeConection)
 
 FetchContent_Declare(
 	outMonitor
 	GIT_REPOSITORY https://github.com/EddyTheCo/outMonitor.git
-	GIT_TAG v0.1.4
-	FIND_PACKAGE_ARGS 0 CONFIG
+	GIT_TAG v0.1.5
+	FIND_PACKAGE_ARGS 0.1 CONFIG
 	)
 FetchContent_MakeAvailable(outMonitor)
+
+FetchContent_Declare(
+	qrCode
+	GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
+	GIT_TAG v0.0.2
+	FIND_PACKAGE_ARGS 0.0 CONFIG
+	)
+FetchContent_MakeAvailable(qrCode)
 
 set_source_files_properties(qml/LocalConf.qml PROPERTIES
 	QT_QML_SINGLETON_TYPE TRUE
@@ -100,24 +106,16 @@ qt_add_resources(nftminter "nftminter.fonts"
 target_link_libraries(nftminter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick)
 
 
-FetchContent_Declare(
-	qrCode
-	GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
-	GIT_TAG v0.0.1
-	FIND_PACKAGE_ARGS 0 CONFIG
-	)
-FetchContent_MakeAvailable(qrCode)
 
 
-target_link_libraries(nftminter PRIVATE MyDesigns account nodeConection QtQrGen outMonitor midlePay)
+target_link_libraries(nftminter PRIVATE MyDesigns account nodeConection qrCode::QtQrGen outMonitor midlePay)
 set_target_properties(nftminter PROPERTIES
 	WIN32_EXECUTABLE ON
 	MACOSX_BUNDLE ON
 	)
 
 
-target_include_directories(nftminter PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/nftMinter>)
+target_include_directories(nftminter PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 install(TARGETS nftminter
 	BUNDLE  DESTINATION .
