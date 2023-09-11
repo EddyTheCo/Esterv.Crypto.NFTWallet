@@ -1,4 +1,4 @@
-name: build-wasm
+name: build-android
 run-name: ${{ github.actor }} ${{ github.event_name }} to ${{ github.base_ref }} 
 on:
   push:

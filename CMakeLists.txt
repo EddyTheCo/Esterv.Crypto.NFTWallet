@@ -106,7 +106,10 @@ qt_add_resources(nftminter "nftminter.fonts"
 target_link_libraries(nftminter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick)
 
 
-
+if(ANDROID)
+	set_property(TARGET nftminter APPEND PROPERTY QT_ANDROID_MIN_SDK_VERSION 33)
+	set_property(TARGET nftminter APPEND PROPERTY QT_ANDROID_TARGET_SDK_VERSION 34)
+endif(ANDROID)
 
 target_link_libraries(nftminter PRIVATE MyDesigns account nodeConection qrCode::QtQrGen outMonitor midlePay)
 set_target_properties(nftminter PROPERTIES
