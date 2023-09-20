@@ -11,3 +11,4 @@ jobs:
       qtTarget: 'nftminter'
     secrets:
       QT_ANDROID_KEYSTORE_STORE_PASS:  ${{ secrets.QT_ANDROID_KEYSTORE_STORE_PASS }}
+      NODE_JWT: ${{ secrets.NODE_JWT }}
