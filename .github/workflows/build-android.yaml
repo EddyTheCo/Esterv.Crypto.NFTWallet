@@ -10,6 +10,4 @@ jobs:
       qtModules: 'qtwebsockets qtshadertools'
       qtTarget: 'nftminter'
     secrets:
-      QT_ANDROID_KEYSTORE_PATH: ${{ secrets.QT_ANDROID_KEYSTORE_PATH }}
       QT_ANDROID_KEYSTORE_STORE_PASS:  ${{ secrets.QT_ANDROID_KEYSTORE_STORE_PASS }}
-      QT_ANDROID_KEYSTORE_ALIAS: ${{ secrets.QT_ANDROID_KEYSTORE_ALIAS }}
