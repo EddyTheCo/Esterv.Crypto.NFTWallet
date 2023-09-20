@@ -30,7 +30,7 @@ qt_add_executable(nftminter main.cpp)
 FetchContent_Declare(
     qrCode
     GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
-    GIT_TAG v0.1.2
+    GIT_TAG  develop 
     FIND_PACKAGE_ARGS 0.1 CONFIG
 )
 FetchContent_MakeAvailable(qrCode)
