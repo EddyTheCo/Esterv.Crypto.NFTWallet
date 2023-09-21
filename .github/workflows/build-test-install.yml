@@ -22,14 +22,28 @@ jobs:
       os: ${{ matrix.os }}
       sharedLib: ${{ matrix.sharedLib }}
       useThread: ${{ matrix.useThread }}
-      qtModules: 'qtwebsockets qtshadertools'
+      qtModules: 'qtwebsockets qtshadertools qtmultimedia'
       qtVersion: '6.6.0'  
       test: false
     secrets:
       NODE_JWT: ${{ secrets.NODE_JWT }}
+  build-android:
+    strategy:
+      matrix:
+        useThread: [true,false]
+
+    uses: EddyTheCo/Common/.github/workflows/build-android.yml@main
+    with:
+      qtModules: 'qtwebsockets qtshadertools'
+      qtTarget: 'nftminter'
+      qtVersion: '6.6.0'  
+      useThread: ${{ matrix.useThread }}
+    secrets:
+      QT_ANDROID_KEYSTORE_STORE_PASS:  ${{ secrets.QT_ANDROID_KEYSTORE_STORE_PASS }}
+      NODE_JWT: ${{ secrets.NODE_JWT }}
   release:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: build_test_package
+    needs: [build_test_package,build-android]
     runs-on: ubuntu-latest
 
     permissions:
