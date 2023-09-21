@@ -8,8 +8,8 @@ using namespace qblocks;
 QString NftBox::get_addr(const c_array& var)
 {
 
-	return (var.isNull())?QString():qencoding::qbech32::Iota::encode
-		(Node_Conection::rest_client->info()["protocol"].toObject()["bech32Hrp"].toString(),var);
+    return (var.isNull())?QString():qencoding::qbech32::Iota::encode
+               (Node_Conection::instance()->rest()->info()["protocol"].toObject()["bech32Hrp"].toString(),var);
 }
 bool NftBox::set_addr(QString var_str,c_array& var)
 {
@@ -195,10 +195,10 @@ void NFTCreator::restart (void)
 	receiver=new QObject(this);
 	monitor->restart();
 	model_->clearBoxes(false);
-	setFunds(0);
-	if(Node_Conection::state()==Node_Conection::Connected)
-	{
-		auto info=Node_Conection::rest_client->get_api_core_v2_info();
+    setFunds(0);
+    if(Node_Conection::instance()->state()==Node_Conection::Connected)
+    {
+        auto info=Node_Conection::instance()->rest()->get_api_core_v2_info();
 		connect(info,&Node_info::finished,this,[=]( ){
 				setState(Ready);
 				connect(monitor,&OutMonitor::finished,receiver,[=](auto  outs,auto jsonOuts)
@@ -208,8 +208,8 @@ void NFTCreator::restart (void)
 				connect(monitor,&OutMonitor::gotNewOutsMqtt,receiver,[=](auto  outs,auto jsonOuts)
 						{
 						checkOutputs(outs);
-						});
-				const auto address=Account::addr_bech32({0,0,0},info->bech32Hrp);
+                        });
+                const auto address=Account::instance()->addr_bech32({0,0,0},info->bech32Hrp);
 				monitor->setRestCalls(4);
 				monitor->getRestBasicOuts("address="+address);
 				monitor->getRestNftOuts("address="+address);
@@ -232,15 +232,15 @@ void NFTCreator::checkOutputs(std::vector<qiota::Node_output>  outs)
 
 		for(const auto& v:outs)
 		{
-			std::vector<Node_output> var{v};
-			auto bundle= Account::get_addr({0,0,0});
+            std::vector<Node_output> var{v};
+            auto bundle= Account::instance()->get_addr({0,0,0});
 			bundle.consume_outputs(var);
 
 			if(bundle.amount)
 			{
 				total+=bundle.amount;
-				total_funds.insert(v.metadata().outputid_.toHexString(),bundle.amount);
-				auto resp=Node_Conection::mqtt_client->get_outputs_outputId(v.metadata().outputid_.toHexString());
+                total_funds.insert(v.metadata().outputid_.toHexString(),bundle.amount);
+                auto resp=Node_Conection::instance()->mqtt()->get_outputs_outputId(v.metadata().outputid_.toHexString());
 				connect(resp,&ResponseMqtt::returned,receiver,[=](QJsonValue data){
 						const auto node_output=Node_output(data);
 
@@ -275,8 +275,8 @@ void NFTCreator::checkOutputs(std::vector<qiota::Node_output>  outs)
 			{
 				const auto unixtime=bundle.to_unlock.front();
 				const auto triger=(unixtime-QDateTime::currentDateTime().toSecsSinceEpoch())*1000;
-				QTimer::singleShot(triger+5000,receiver,[=](){
-						auto resp=Node_Conection::mqtt_client->get_outputs_outputId(v.metadata().outputid_.toHexString());
+                QTimer::singleShot(triger+5000,receiver,[=](){
+                    auto resp=Node_Conection::instance()->mqtt()->get_outputs_outputId(v.metadata().outputid_.toHexString());
 						connect(resp,&ResponseMqtt::returned,receiver,[=](QJsonValue data){
 								const auto node_output=Node_output(data);
 								checkOutputs({node_output});
@@ -314,14 +314,14 @@ void NFTCreator::checkOutputs(std::vector<qiota::Node_output>  outs)
 void NFTCreator::mint(bool issend)
 {
 	setState(Null);
-	QTimer::singleShot(15000,this,[=](){setState(Ready);});
-	auto info=Node_Conection::rest_client->get_api_core_v2_info();
+    QTimer::singleShot(15000,this,[=](){setState(Ready);});
+    auto info=Node_Conection::instance()->rest()->get_api_core_v2_info();
 	QObject::connect(info,&Node_info::finished,this,[=]( ){
 
 			auto mintmonitor=new OutMonitor(receiver);
 			connect(mintmonitor,&OutMonitor::finished,receiver,[=](auto  outs,auto jsonOuts)
-					{
-					auto bundle=Account::get_addr({0,0,0});
+                    {
+                auto bundle=Account::instance()->get_addr({0,0,0});
 
 
 					bundle.consume_outputs(outs);
@@ -366,14 +366,14 @@ void NFTCreator::mint(bool issend)
 
 							auto trpay=Payload::Transaction(essence,bundle.unlocks);
 
-							auto resp=Node_Conection::mqtt_client->get_subscription("transactions/"+trpay->get_id().toHexString() +"/included-block");
+                            auto resp=Node_Conection::instance()->mqtt()->get_subscription("transactions/"+trpay->get_id().toHexString() +"/included-block");
 							connect(resp,&ResponseMqtt::returned,this,[=](auto var){
 									setState(Ready);
 									resp->deleteLater();
 									});
 
-							auto block_=Block(trpay);
-							Node_Conection::rest_client->send_block(block_);
+                            auto block_=Block(trpay);
+                            Node_Conection::instance()->rest()->send_block(block_);
 						}
 						else
 						{
@@ -385,8 +385,8 @@ void NFTCreator::mint(bool issend)
 					info->deleteLater();
 					mintmonitor->deleteLater();
 
-					});
-			const auto address=Account::addr_bech32({0,0,0},info->bech32Hrp);
+                    });
+            const auto address=Account::instance()->addr_bech32({0,0,0},info->bech32Hrp);
 			mintmonitor->setRestCalls(4);
 			mintmonitor->getRestBasicOuts("address="+address);
 			mintmonitor->getRestNftOuts("address="+address);
@@ -402,8 +402,8 @@ void NFTCreator::setFunds(quint64 funds_m){
 
 	if(funds_!=funds_m||funds_m==0)
 	{
-		funds_=funds_m;
-		auto info=Node_Conection::rest_client->get_api_core_v2_info();
+        funds_=funds_m;
+        auto info=Node_Conection::instance()->rest()->get_api_core_v2_info();
 		QObject::connect(info,&Node_info::finished,receiver,[=]( ){
 				funds_json=info->amount_json(funds_);
 				emit fundsChanged();

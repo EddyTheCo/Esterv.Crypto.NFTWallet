@@ -30,7 +30,7 @@ qt_add_executable(nftminter main.cpp)
 FetchContent_Declare(
     qrCode
     GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
-    GIT_TAG  develop 
+    GIT_TAG  v0.1.2 
     FIND_PACKAGE_ARGS 0.1 CONFIG
 )
 FetchContent_MakeAvailable(qrCode)
@@ -52,26 +52,25 @@ FetchContent_MakeAvailable(MyDesigns)
 FetchContent_Declare(
     account
     GIT_REPOSITORY https://github.com/EddyTheCo/account.git
-    GIT_TAG v0.2.2
-    FIND_PACKAGE_ARGS 0.2 CONFIG
+    GIT_TAG v0.3.1
+    FIND_PACKAGE_ARGS 0.3 CONFIG
 )
 FetchContent_MakeAvailable(account)
 FetchContent_Declare(
     nodeConection
     GIT_REPOSITORY https://github.com/EddyTheCo/ConectionSettings.git
-    GIT_TAG v0.2.3
-    FIND_PACKAGE_ARGS 0.2 CONFIG
+    GIT_TAG v0.3.1
+    FIND_PACKAGE_ARGS 0.3 CONFIG
 )
 FetchContent_MakeAvailable(nodeConection)
 
 FetchContent_Declare(
     outMonitor
     GIT_REPOSITORY https://github.com/EddyTheCo/outMonitor.git
-    GIT_TAG v0.1.5
+    GIT_TAG v0.1.6
     FIND_PACKAGE_ARGS 0.1 CONFIG
 )
 FetchContent_MakeAvailable(outMonitor)
-
 
 
 set_source_files_properties(qml/LocalConf.qml PROPERTIES
@@ -107,7 +106,6 @@ if(ANDROID)
     set_property(TARGET nftminter APPEND PROPERTY QT_ANDROID_MIN_SDK_VERSION 30)
     set_property(TARGET nftminter APPEND PROPERTY QT_ANDROID_TARGET_SDK_VERSION 34)
     set_property(TARGET nftminter APPEND PROPERTY QT_ANDROID_SDK_BUILD_TOOLS_REVISION 34.0.0)
-
     FetchContent_Declare(
         android_openssl
         DOWNLOAD_EXTRACT_TIMESTAMP true
