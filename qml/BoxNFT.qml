@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import MyDesigns
 import QtQuick.Controls
-
+import QtQrGen
 
 Rectangle
 {
@@ -82,7 +82,7 @@ Rectangle
             {
                 id:datcolumn
                 anchors.fill: parent
-                TextAddress
+                QrLabel
                 {
                     id:taddr
                     visible:root.address
@@ -92,7 +92,7 @@ Rectangle
                     address:root.address
                     color:"white"
                 }
-                TextAddress
+                QrLabel
                 {
                     id:tissuer
                     visible:root.issuer
