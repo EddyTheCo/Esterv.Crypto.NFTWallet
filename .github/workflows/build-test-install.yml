@@ -31,6 +31,7 @@ jobs:
     strategy:
       matrix:
         useThread: [true,false]
+        qtArch: ['android_arm64_v8a','android_armv7']  
 
     uses: EddyTheCo/Common/.github/workflows/build-android.yml@main
     with:
@@ -38,6 +39,7 @@ jobs:
       qtTarget: 'nftminter'
       qtVersion: '6.6.0'  
       useThread: ${{ matrix.useThread }}
+      qtArch: ${{ matrix.qtArch }}  
     secrets:
       QT_ANDROID_KEYSTORE_STORE_PASS:  ${{ secrets.QT_ANDROID_KEYSTORE_STORE_PASS }}
       NODE_JWT: ${{ secrets.NODE_JWT }}
