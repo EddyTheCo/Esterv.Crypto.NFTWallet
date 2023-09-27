@@ -30,8 +30,8 @@ qt_add_executable(nftminter main.cpp)
 FetchContent_Declare(
     qrCode
     GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
-    GIT_TAG  v0.1.2 
-    FIND_PACKAGE_ARGS 0.1 CONFIG
+    GIT_TAG  v0.2.1
+    FIND_PACKAGE_ARGS 0.2 CONFIG
 )
 FetchContent_MakeAvailable(qrCode)
 
@@ -103,25 +103,26 @@ target_link_libraries(nftminter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick)
 
 
 if(ANDROID)
+    set_property(TARGET nftminter PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     set_property(TARGET nftminter APPEND PROPERTY QT_ANDROID_MIN_SDK_VERSION 30)
     set_property(TARGET nftminter APPEND PROPERTY QT_ANDROID_TARGET_SDK_VERSION 34)
     set_property(TARGET nftminter APPEND PROPERTY QT_ANDROID_SDK_BUILD_TOOLS_REVISION 34.0.0)
-    FetchContent_Declare(
-        android_openssl
-        DOWNLOAD_EXTRACT_TIMESTAMP true
-        URL      https://github.com/KDAB/android_openssl/archive/refs/heads/master.zip
-        #URL_HASH MD5=c97d6ad774fab16be63b0ab40f78d945 #optional
-    )
-if(NOT android_openssl_POPULATED)
-    FetchContent_Populate(android_openssl)
-    include(${android_openssl_SOURCE_DIR}/android_openssl.cmake)
-    add_android_openssl_libraries(nftminter)
-endif()
 
+    FetchContent_Declare(
+          android_openssl
+          DOWNLOAD_EXTRACT_TIMESTAMP true
+          URL      https://github.com/KDAB/android_openssl/archive/refs/heads/master.zip
+        )
+    FetchContent_GetProperties(android_openssl)
+    if(NOT android_openssl_POPULATED)
+        FetchContent_Populate(android_openssl)
+        include(${android_openssl_SOURCE_DIR}/android_openssl.cmake)
+        add_android_openssl_libraries(nftminter)
+    endif(NOT android_openssl_POPULATED)
 
 endif(ANDROID)
 
-target_link_libraries(nftminter PRIVATE MyDesigns account nodeConection QtQrGen outMonitor midlePay)
+target_link_libraries(nftminter PRIVATE MyDesigns account nodeConection QtQrGen QtQrDec outMonitor midlePay)
 set_target_properties(nftminter PROPERTIES
     WIN32_EXECUTABLE ON
     MACOSX_BUNDLE ON

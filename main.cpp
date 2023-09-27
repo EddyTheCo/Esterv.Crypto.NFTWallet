@@ -1,19 +1,22 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include "Qrimageprovider.hpp"
+#include "Qrimagedecoder.hpp"
 #include "mydesigns.hpp"
 #include "midlePay.hpp"
 int main(int argc, char *argv[])
 {
     auto foo=fooDesign::fooPrint(); //https://forum.qt.io/post/762513
     foo=fooQtQrGen::fooPrint();
+    foo=fooQtQrDec::fooPrint();
     foo=fooMidlePay::fooPrint();
 
 
-	QGuiApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
 
 	QQmlApplicationEngine engine;
     engine.addImageProvider(QLatin1String("qrcodeblack"), new QRImageProvider("#10141c",1));
+    engine.addImageProvider(QLatin1String("wasm"), new WasmImageProvider());
     engine.addImportPath("qrc:/esterVtech.com/imports");
     qDebug()<<engine.importPathList();
 

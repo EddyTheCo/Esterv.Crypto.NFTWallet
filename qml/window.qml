@@ -97,6 +97,14 @@ ApplicationWindow {
 
             model: NFTCreator.model
 
+            BusyIndicator {
+                anchors.top: boxes.top
+                anchors.horizontalCenter: boxes.horizontalCenter
+                anchors.margins: 20
+                running: NFTCreator.state===NFTCreator.Null
+            }
+
+
             delegate: BoxNFT {
                 width: ListView.view.width
 
