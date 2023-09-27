@@ -13,7 +13,7 @@ jobs:
       matrix:
         os: [ubuntu-latest,macos-latest,windows-latest]
         sharedLib: [true]
-        useThread: [true,false]
+        useThread: [true]
 
     uses: EddyTheCo/Common/.github/workflows/build-test-install.yml@main
     permissions:
@@ -30,12 +30,12 @@ jobs:
   build-android:
     strategy:
       matrix:
-        useThread: [true,false]
+        useThread: [true]
         qtArch: ['android_arm64_v8a','android_armv7']  
 
     uses: EddyTheCo/Common/.github/workflows/build-android.yml@main
     with:
-      qtModules: 'qtwebsockets qtshadertools'
+      qtModules: 'qtwebsockets qtshadertools qtmultimedia'
       qtTarget: 'nftminter'
       qtVersion: '6.6.0'  
       useThread: ${{ matrix.useThread }}
