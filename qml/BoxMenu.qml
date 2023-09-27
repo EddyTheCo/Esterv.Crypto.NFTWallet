@@ -5,7 +5,8 @@ import nodeConection
 import account
 import NftMinter
 import QtQuick.Controls
-
+import QtQrGen
+import QtQrDec
 Rectangle
 {
     id:root
@@ -17,7 +18,7 @@ Rectangle
     ColumnLayout
     {
         anchors.fill: parent
-        TextAddress
+        QrLabel
         {
             id:addr
             Layout.fillWidth: true
@@ -125,60 +126,20 @@ Rectangle
             }
         }
     }
-
-    Popup
+    QrTextArea
     {
         id:popup_
         visible:false
         closePolicy: Popup.CloseOnPressOutside
-        width:350
-        height:200
+        width:300
+        height:425
         anchors.centerIn: Overlay.overlay
-
-        background: Rectangle
-        {
-            id:bck
-            color:CustomStyle.backColor1
-            border.width:1
-            border.color:CustomStyle.frontColor1
-            radius:Math.min(width,height)*0.07
-
-        }
-
-        ColumnLayout
-        {
-            anchors.fill: parent
-            MyTextField
-            {
-                id:recaddress
-                label.text: qsTr("Send all your assests to:")
-                textfield.placeholderText: (Node_Conection.state)?Node_Conection.info().protocol.bech32Hrp+"1":""
-                textfield.onTextEdited: NFTCreator.recAddress=recaddress.textfield.text;
-                Layout.alignment: Qt.AlignHCenter
-                Layout.margins:  10
-                Layout.fillWidth: true
-                Layout.minimumHeight: 75
-                focus:true
-            }
-            MyButton
-            {
-                id:send
-                enabled:NFTCreator.recAddress&&(NFTCreator.funds.largeValue.value>0)
-                Layout.alignment: Qt.AlignRight
-                Layout.margins:  15
-                Layout.fillHeight: true
-                Layout.maximumHeight:  50
-                Layout.fillWidth: true
-                Layout.maximumWidth: 2*height
-
-                onClicked:
-                {
-                    popup_.close()
-                    NFTCreator.send();
-                }
-                text:qsTr("Send")
-            }
-        }
+        description: qsTr("Send all your assests to:")
+        placeholder: (Node_Conection.state)?Node_Conection.info().protocol.bech32Hrp+"1":""
+        onClicked: (data) => {
+                       NFTCreator.recAddress=data;
+                       NFTCreator.send();
+                   }
     }
 
 }
