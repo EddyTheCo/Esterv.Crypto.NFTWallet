@@ -22,7 +22,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 include(GNUInstallDirs)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml Multimedia)
 
 qt_standard_project_setup()
 
@@ -97,7 +97,7 @@ qt6_add_qml_module(nftminter
 )
 
 
-target_link_libraries(nftminter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick)
+target_link_libraries(nftminter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick Qt6::Multimedia)
 
 
 if(ANDROID)
