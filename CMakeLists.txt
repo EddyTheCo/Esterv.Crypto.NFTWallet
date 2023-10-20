@@ -22,7 +22,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 include(GNUInstallDirs)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml Multimedia)
 
 qt_standard_project_setup()
 
@@ -30,7 +30,7 @@ qt_add_executable(nftminter main.cpp)
 FetchContent_Declare(
     qrCode
     GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
-    GIT_TAG  v0.3.1
+    GIT_TAG  install_opencv_libs
     FIND_PACKAGE_ARGS 0.3 CONFIG
 )
 FetchContent_MakeAvailable(qrCode)
@@ -97,7 +97,7 @@ qt6_add_qml_module(nftminter
 )
 
 
-target_link_libraries(nftminter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick)
+target_link_libraries(nftminter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick Qt6::Multimedia)
 
 
 if(ANDROID)
