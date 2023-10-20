@@ -30,7 +30,7 @@ qt_add_executable(nftminter main.cpp)
 FetchContent_Declare(
     qrCode
     GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
-    GIT_TAG  install_opencv_libs
+    GIT_TAG  v0.3.1
     FIND_PACKAGE_ARGS 0.3 CONFIG
 )
 FetchContent_MakeAvailable(qrCode)
