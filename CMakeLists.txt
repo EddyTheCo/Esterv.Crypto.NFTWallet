@@ -22,7 +22,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 include(GNUInstallDirs)
 
-find_package(Qt6 COMPONENTS Core Gui Quick Qml REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml)
 
 qt_standard_project_setup()
 
@@ -30,45 +30,45 @@ qt_add_executable(nftminter main.cpp)
 FetchContent_Declare(
     qrCode
     GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
-    GIT_TAG  v0.2.1
-    FIND_PACKAGE_ARGS 0.2 CONFIG
+    GIT_TAG  v0.3.1
+    FIND_PACKAGE_ARGS 0.3 CONFIG
 )
 FetchContent_MakeAvailable(qrCode)
 
 FetchContent_Declare(
     midlePay
     GIT_REPOSITORY https://github.com/EddyTheCo/MidlePay.git
-    GIT_TAG v0.0.4
-    FIND_PACKAGE_ARGS 0.0 CONFIG
+    GIT_TAG v0.1.1
+    FIND_PACKAGE_ARGS 0.1 CONFIG
 )
 FetchContent_MakeAvailable(midlePay)
 FetchContent_Declare(
     MyDesigns
     GIT_REPOSITORY https://github.com/EddyTheCo/MyDesigns.git
-    GIT_TAG v0.2.3
-    FIND_PACKAGE_ARGS 0.2 CONFIG
+    GIT_TAG v0.3.1
+    FIND_PACKAGE_ARGS 0.3 CONFIG
 )
 FetchContent_MakeAvailable(MyDesigns)
 FetchContent_Declare(
     account
     GIT_REPOSITORY https://github.com/EddyTheCo/account.git
-    GIT_TAG v0.3.1
-    FIND_PACKAGE_ARGS 0.3 CONFIG
+    GIT_TAG v0.4.1
+    FIND_PACKAGE_ARGS 0.4 CONFIG
 )
 FetchContent_MakeAvailable(account)
 FetchContent_Declare(
     nodeConection
     GIT_REPOSITORY https://github.com/EddyTheCo/ConectionSettings.git
-    GIT_TAG v0.3.1
-    FIND_PACKAGE_ARGS 0.3 CONFIG
+    GIT_TAG v0.4.1
+    FIND_PACKAGE_ARGS 0.4 CONFIG
 )
 FetchContent_MakeAvailable(nodeConection)
 
 FetchContent_Declare(
     outMonitor
     GIT_REPOSITORY https://github.com/EddyTheCo/outMonitor.git
-    GIT_TAG v0.1.6
-    FIND_PACKAGE_ARGS 0.1 CONFIG
+    GIT_TAG v0.2.1
+    FIND_PACKAGE_ARGS 0.2 CONFIG
 )
 FetchContent_MakeAvailable(outMonitor)
 
@@ -90,14 +90,12 @@ qt6_add_qml_module(nftminter
     qml/LocalConf.qml
     RESOURCE_PREFIX
     "/esterVtech.com/imports"
-    IMPORT_PATH ${QML_IMPORT_PATH}
-)
-qt_add_resources(nftminter "nftminter.fonts"
-    PREFIX "/esterVtech.com/imports/NftMinter"
-    FILES
+    RESOURCES
     "fonts/Anton/Anton-Regular.ttf"
     "fonts/Permanent_Marker/PermanentMarker-Regular.ttf"
+    IMPORT_PATH ${CMAKE_BINARY_DIR}
 )
+
 
 target_link_libraries(nftminter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick)
 
@@ -122,7 +120,15 @@ if(ANDROID)
 
 endif(ANDROID)
 
-target_link_libraries(nftminter PRIVATE MyDesigns account nodeConection QtQrGen QtQrDec outMonitor midlePay)
+target_link_libraries(nftminter PRIVATE MyDesigns account nodeConection QtQrGen QtQrDec outMonitor midlePay
+    $<$<STREQUAL:$<TARGET_PROPERTY:MyDesigns,TYPE>,STATIC_LIBRARY>:MyDesignsplugin>
+    $<$<STREQUAL:$<TARGET_PROPERTY:account,TYPE>,STATIC_LIBRARY>:accountplugin>
+    $<$<STREQUAL:$<TARGET_PROPERTY:nodeConection,TYPE>,STATIC_LIBRARY>:nodeConectionplugin>
+    $<$<STREQUAL:$<TARGET_PROPERTY:QtQrGen,TYPE>,STATIC_LIBRARY>:QtQrGenplugin>
+    $<$<STREQUAL:$<TARGET_PROPERTY:QtQrDec,TYPE>,STATIC_LIBRARY>:QtQrDecplugin>
+    $<$<STREQUAL:$<TARGET_PROPERTY:outMonitor,TYPE>,STATIC_LIBRARY>:outMonitorplugin>
+    $<$<STREQUAL:$<TARGET_PROPERTY:midlePay,TYPE>,STATIC_LIBRARY>:midlePayplugin>
+)
 set_target_properties(nftminter PROPERTIES
     WIN32_EXECUTABLE ON
     MACOSX_BUNDLE ON
