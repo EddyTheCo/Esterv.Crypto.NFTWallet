@@ -22,7 +22,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 include(GNUInstallDirs)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml Multimedia)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml OPTIONAL_COMPONENTS Multimedia)
 
 qt_standard_project_setup()
 
@@ -97,8 +97,11 @@ qt6_add_qml_module(nftminter
 )
 
 
-target_link_libraries(nftminter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick Qt6::Multimedia)
+target_link_libraries(nftminter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick )
 
+if(TARGET Qt6::Multimedia)
+    target_link_libraries(nftminter PRIVATE Qt6::Multimedia)
+endif(TARGET Qt6::Multimedia)
 
 if(ANDROID)
     set_property(TARGET nftminter PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
