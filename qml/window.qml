@@ -4,6 +4,7 @@ import QtQuick.Layouts
 
 import Esterv.Styles.Simple
 import Esterv.Iota.NodeConnection
+import Esterv.Iota.NFTMinter
 
 ApplicationWindow {
     visible: true
@@ -43,14 +44,26 @@ ApplicationWindow {
         height:drawer.height
         x:drawer.width*drawer.position
         flow: grid.iscolumn ? GridLayout.TopToBottom : GridLayout.LeftToRight
-        Rectangle
-        {
-            color:"red"
+
+        ListView {
+            id:boxes
+
             Layout.alignment: Qt.AlignTop
             Layout.margins:  15
             Layout.fillHeight: true
             Layout.fillWidth: true
             Layout.minimumWidth: (grid.iscolumn)?150:450
+            spacing : 10
+            clip:true
+
+            model: BoxModel
+
+
+            delegate: BoxNFT {
+                width: ListView.view.width
+                height: 350
+            }
+
         }
 
         BoxMenu

@@ -8,6 +8,8 @@ import Esterv.Styles.Simple
 import Esterv.Iota.AddrBundle
 import Esterv.Iota.Wallet
 import Esterv.Iota.NodeConnection
+import Esterv.Iota.NFTMinter
+
 Rectangle
 {
     id:root
@@ -33,7 +35,7 @@ Rectangle
             }
             QrText
             {
-                text:Wallet.addresses.length?Wallet.addresses[0].getAddressBech32():""
+                text:Wallet.addresses.length?Wallet.addresses[0].bech32Address:""
                 visible:Wallet.addresses.length
                 Layout.fillWidth: true
                 Layout.maximumWidth: implicitWidth
@@ -84,6 +86,7 @@ Rectangle
                 Layout.maximumHeight:  50
                 ToolTip.text: text
                 ToolTip.visible: hovered
+                onClicked:BoxModel.newBox();
             }
             Button
             {
@@ -97,7 +100,9 @@ Rectangle
             }
         }
 
-
     }
 
+
 }
+
+

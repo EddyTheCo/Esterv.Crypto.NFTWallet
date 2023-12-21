@@ -20,11 +20,13 @@ class NftBox :public QObject
     Q_PROPERTY(QString  issuer READ issuerBech32 WRITE setIssuer NOTIFY issuerChanged)
     Q_PROPERTY(QString  address READ addressBech32 NOTIFY addressChanged)
     Q_PROPERTY(QString  metdata READ metdata WRITE setMetdata NOTIFY metdataChanged)
+    Q_PROPERTY(QUrl  uri READ uri  NOTIFY uriChanged)
+    Q_PROPERTY(QString  name READ name  NOTIFY nameChanged)
     QML_ELEMENT
 
 public:
     NftBox(QObject *parent = nullptr):QObject(parent){}
-    NftBox(std::shared_ptr<const Output> out, QObject *parent = nullptr);
+    NftBox(std::shared_ptr<const Output> out, QObject *parent = nullptr,c_array outId=c_array());
 
     static bool set_addr(QString var_str,c_array& var);
 
@@ -34,6 +36,9 @@ public:
     c_array addrArray()const{return m_address;}
     c_array issuerArray()const{return m_issuer;}
     c_array dataArray()const{return m_data;}
+    c_array outId()const{return m_outId;}
+    QString name()const{return m_name;}
+    QUrl uri()const{return m_uri;}
 
     void setMetdata(QString data);
     void setIssuer(QString addr)
@@ -45,9 +50,13 @@ signals:
     void issuerChanged();
     void addressChanged();
     void metdataChanged();
+    void uriChanged();
+    void nameChanged();
 private:
-    c_array m_issuer,m_address,m_data;
-    QString m_addressBech32,m_issuerBech32;
+    void fillIRC27(QJsonObject data);
+    c_array m_issuer,m_address,m_data,m_outId;
+    QString m_addressBech32,m_issuerBech32,m_name;
+    QUrl m_uri;
 
 };
 
@@ -62,7 +71,7 @@ class BoxModel : public QAbstractListModel
 public:
     enum ModelRoles {
         issuerRole = Qt::UserRole + 1,
-        metdataRole,addressRole};
+        metdataRole,addressRole,uriRole,nameRole};
 
     int count() const;
     int newBoxes()const{return newBoxes_;}
@@ -79,7 +88,7 @@ public:
     };
     void addBox(NftBox* nbox);
     Q_INVOKABLE void rmBox(int i);
-    void rmBoxId(c_array addr);
+    void rmBoxId(c_array outId);
 
     Q_INVOKABLE bool setProperty(int i, QString role, const QVariant value);
 
@@ -96,6 +105,8 @@ signals:
     void newBoxesChanged();
 
 private:
+    void gotInput(c_array id);
+    void lostInput(c_array id);
     int m_count,newBoxes_;
     QList<NftBox*> boxes;
 };

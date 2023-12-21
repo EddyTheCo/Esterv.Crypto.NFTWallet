@@ -5,6 +5,7 @@
 
 #include "encoding/qbech32.hpp"
 #include"nodeConnection.hpp"
+#include "qwallet.hpp"
 
 bool NftBox::set_addr(QString var_str,c_array& var)
 {
@@ -17,8 +18,9 @@ bool NftBox::set_addr(QString var_str,c_array& var)
     return false;
 
 }
-NftBox::NftBox(std::shared_ptr<const Output> out, QObject *parent):NftBox(parent)
+NftBox::NftBox(std::shared_ptr<const Output> out, QObject *parent, c_array outId):NftBox(parent)
 {
+    m_outId=outId;
     auto info=NodeConnection::instance()->rest()->get_api_core_v2_info();
     connect(info,&Node_info::finished,this,[=]( ){
         const auto issuefea=out->get_immutable_feature_(qblocks::Feature::Issuer_typ);
@@ -32,6 +34,11 @@ NftBox::NftBox(std::shared_ptr<const Output> out, QObject *parent):NftBox(parent
         if(immetfea)
         {
             m_data=std::static_pointer_cast<const Metadata_Feature>(immetfea)->data();
+            auto var=QJsonDocument::fromJson(m_data);
+            if(!var.isNull())
+            {
+                fillIRC27(var.object());
+            }
             emit metdataChanged();
         }
         const auto id=out->get_id();
@@ -42,7 +49,23 @@ NftBox::NftBox(std::shared_ptr<const Output> out, QObject *parent):NftBox(parent
     });
 
 }
+void NftBox::fillIRC27(QJsonObject data)
+{
 
+    const auto name=data["name"].toString();
+    if(!name.isNull()&&name!=m_name)
+    {
+        m_name=name;
+        emit nameChanged();
+    }
+    const auto uri=QUrl(data["uri"].toString());
+    if(uri.isValid()&&uri!=m_uri)
+    {
+        m_uri=uri;
+        emit uriChanged();
+    }
+
+}
 void NftBox::setMetdata(QString data)
 {
     auto var=QJsonDocument::fromJson(data.toUtf8());
@@ -58,12 +81,33 @@ void NftBox::setMetdata(QString data)
     if(vararr!=m_data)
     {
         m_data=vararr;
+        if(!var.isNull())
+        {
+
+            fillIRC27(var.object());
+        }
         emit metdataChanged();
     }
 
 };
 BoxModel::BoxModel(QObject *parent)
-    : QAbstractListModel(parent),newBoxes_(0){}
+    : QAbstractListModel(parent),newBoxes_(0){
+
+    connect(Wallet::instance(),&Wallet::inputAdded,this,&BoxModel::gotInput);
+    connect(Wallet::instance(),&Wallet::inputRemoved,this,&BoxModel::rmBoxId);
+}
+void BoxModel::gotInput(c_array id)
+{
+    const auto addrInputPair=Wallet::instance()->inputs().at(id).back();
+    const auto inBox=addrInputPair.first->inputs().value(addrInputPair.second);
+    const auto output=inBox.output;
+    if(output->type()==qblocks::Output::NFT_typ)
+    {
+        auto nbox=new NftBox(output,this);
+        addBox(nbox);
+    }
+
+}
 
 int BoxModel::count() const
 {
@@ -97,6 +141,8 @@ QHash<int, QByteArray> BoxModel::roleNames() const {
     roles[issuerRole] = "issuer";
     roles[metdataRole] = "metdata";
     roles[addressRole] = "address";
+    roles[uriRole] = "uri";
+    roles[nameRole] = "name";
     return roles;
 }
 QVariant BoxModel::data(const QModelIndex &index, int role) const
@@ -127,7 +173,14 @@ QModelIndex BoxModel::index(int row, int column , const QModelIndex &parent ) co
 }
 void BoxModel::addBox(NftBox* o)
 {
+
     int i = boxes.size();
+    connect(o,&NftBox::nameChanged,this,[=]{
+        emit dataChanged(index(i),index(i),QList<int>{ModelRoles::nameRole});
+    });
+    connect(o,&NftBox::uriChanged,this,[=]{
+        emit dataChanged(index(i),index(i),QList<int>{ModelRoles::uriRole});
+    });
     beginInsertRows(QModelIndex(), i, i);
     boxes.append(o);
     emit countChanged(count());
@@ -147,11 +200,11 @@ void BoxModel::rmBox(int i) {
     emit countChanged(count());
     endRemoveRows();
 }
-void BoxModel::rmBoxId(c_array addr)
+void BoxModel::rmBoxId(c_array outId)
 {
     for(auto i=0;i<boxes.size();i++)
     {
-        if(boxes[i]->addrArray()==addr)
+        if(boxes[i]->outId()==outId)
         {
             beginRemoveRows(QModelIndex(), i, i);
             boxes.remove(i);

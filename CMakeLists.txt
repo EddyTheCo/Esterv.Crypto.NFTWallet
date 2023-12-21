@@ -25,7 +25,7 @@ include(GNUInstallDirs)
 FetchContent_Declare(
     IotaWallet
     GIT_REPOSITORY https://github.com/EddyTheCo/qWallet-IOTA.git
-    GIT_TAG EddyTheCo-patch-1
+    GIT_TAG develop
     FIND_PACKAGE_ARGS 0.4 CONFIG
 )
 FetchContent_MakeAvailable(IotaWallet)
