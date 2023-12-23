@@ -5,6 +5,7 @@
 
 #include "encoding/qbech32.hpp"
 #include"nodeConnection.hpp"
+#include "qaddr_bundle.hpp"
 #include "qwallet.hpp"
 
 bool NftBox::set_addr(QString var_str,c_array& var)
@@ -49,6 +50,131 @@ NftBox::NftBox(std::shared_ptr<const Output> out, QObject *parent, c_array outId
     });
 
 }
+
+void NftBox::mint()
+{
+    qDebug()<<"mint";
+    setState(Minting);
+    QTimer::singleShot(20000,this,[=](){setState(Ready);});
+    auto info=NodeConnection::instance()->rest()->get_api_core_v2_info();
+    connect(info,&Node_info::finished,this,[=]( ){
+        qDebug()<<"Node_info::finished";
+        qDebug()<<"addresses().size():"<<Wallet::instance()->addresses().size();
+        if(Wallet::instance()->addresses().size())
+        {
+
+            //qDebug()<<"addr:"<<Wallet::instance()->addresses().begin()->second->getAddressBech32();
+            const auto unlock=
+                Unlock_Condition::Address(Wallet::instance()->addresses().begin()->second->getAddress());
+            qDebug()<<"unlock:"<<unlock->get_Json();
+
+            pset<const Feature> features;
+            if(!m_issuer.isNull())
+            {
+                const auto issuer=Feature::Issuer(Address::from_array(m_issuer));
+                features.insert(issuer);
+                qDebug()<<"issuer:"<<issuer->get_Json();
+            }
+            if(!m_data.isNull())
+            {
+                const auto metadata=Feature::Metadata(m_data);
+                features.insert(metadata);
+                qDebug()<<"metadata:"<<metadata->get_Json();
+            }
+            auto NFTout=Output::NFT(0,{unlock},{},features);
+            const auto deposit=NodeConnection::instance()->rest()->get_deposit(NFTout,info);
+            NFTout->amount_=deposit;
+            qDebug()<<"NFTout:"<<NFTout->get_Json();
+
+            if(m_issuer.isNull()||Wallet::instance()->addresses().find(m_issuer)!=Wallet::instance()->addresses().cend())
+            {
+                InputSet inputSet;
+                StateOutputs stateOutputs;
+                quint64 consumedAmount=0;
+                if(!m_issuer.isNull())
+                {
+                    const auto addB=Wallet::instance()->addresses().at(m_issuer);
+                    const auto issuerAddr=addB->getAddress();
+                    //qDebug()<<"addressunlock:"<<addB->getAddressBech32();
+                    if(issuerAddr->type()==Address::NFT_typ||issuerAddr->type()==Address::Alias_typ)
+                    {
+                        consumedAmount+=Wallet::instance()->
+                                          consume(inputSet,stateOutputs,deposit,{Output::All_typ},{addB->outId()});
+                    }
+                }
+
+                quint64 stateAmount=0;
+                for(const auto &v:std::as_const(stateOutputs))
+                {
+                    stateAmount+=v.amount;
+                }
+                quint64 requiredAmount=deposit+stateAmount;
+                qDebug()<<"deposit:"<<deposit;
+                qDebug()<<"stateAmount:"<<stateAmount;
+                qDebug()<<"consumedAmount:"<<consumedAmount;
+                if(consumedAmount<requiredAmount)
+                {
+                    consumedAmount+=Wallet::instance()->
+                                      consume(inputSet,stateOutputs,requiredAmount-consumedAmount,{Output::Basic_typ},{});
+                }
+                pvector<const Output> theOutputs{NFTout};
+                stateAmount=0;
+                for(const auto &v:std::as_const(stateOutputs))
+                {
+                    stateAmount+=v.amount;
+                    theOutputs.push_back(v.output);
+                }
+                requiredAmount=deposit+stateAmount;
+                qDebug()<<"deposit:"<<deposit;
+                qDebug()<<"stateAmount:"<<stateAmount;
+                qDebug()<<"consumedAmount:"<<consumedAmount;
+                if(consumedAmount>=requiredAmount)
+                {
+                    auto BaOut=Output::Basic(0,{unlock});
+                    const auto minDeposit=Client::get_deposit(BaOut,info);
+                    if(consumedAmount-requiredAmount>minDeposit)
+                    {
+                        BaOut->amount_=consumedAmount-requiredAmount;
+                        theOutputs.push_back(BaOut);
+                    }
+                    else
+                    {
+                        NFTout->amount_+=consumedAmount-requiredAmount;
+                    }
+                    auto payloadusedids=Wallet::instance()->createTransaction(inputSet,info,theOutputs);
+                    auto block=Block(payloadusedids.first);
+                    const auto transactionid=payloadusedids.first->get_id().toHexString();
+                    auto res=NodeConnection::instance()->mqtt()->get_subscription("transactions/"+transactionid +"/included-block");
+                    QObject::connect(res,&ResponseMqtt::returned,this,[=](auto var){
+                        setState(Ready);
+                        res->deleteLater();
+                    });
+
+                    // Send the block to the node
+                    qDebug().noquote()<<"block:\n"<<QString(QJsonDocument(block.get_Json()).toJson(QJsonDocument::Indented));
+                    NodeConnection::instance()->rest()->send_block(block);
+
+                }
+                else
+                {
+                    qDebug()<<"notEnought";
+                    this->setState(Ready);
+                    //emit notEnought(qiota::Qml64(requiredAmount-consumedAmount).json());
+                }
+            }
+            else
+            {
+                qDebug()<<"wrongissuer";
+                setState(Ready);
+                emit wrongIssuer(qencoding::qbech32::Iota::encode(info->bech32Hrp,m_issuer));
+            }
+
+        }
+
+        info->deleteLater();
+    });
+}
+
 void NftBox::fillIRC27(QJsonObject data)
 {
 
@@ -98,12 +224,12 @@ BoxModel::BoxModel(QObject *parent)
 }
 void BoxModel::gotInput(c_array id)
 {
-    const auto addrInputPair=Wallet::instance()->inputs().at(id).back();
-    const auto inBox=addrInputPair.first->inputs().value(addrInputPair.second);
+    const auto inBox=Wallet::instance()->getInput(id);
     const auto output=inBox.output;
+
     if(output->type()==qblocks::Output::NFT_typ)
     {
-        auto nbox=new NftBox(output,this);
+        auto nbox=new NftBox(output,this,id);
         addBox(nbox);
     }
 
@@ -143,6 +269,7 @@ QHash<int, QByteArray> BoxModel::roleNames() const {
     roles[addressRole] = "address";
     roles[uriRole] = "uri";
     roles[nameRole] = "name";
+    roles[stateRole] = "state";
     return roles;
 }
 QVariant BoxModel::data(const QModelIndex &index, int role) const
@@ -178,6 +305,9 @@ void BoxModel::addBox(NftBox* o)
     connect(o,&NftBox::nameChanged,this,[=]{
         emit dataChanged(index(i),index(i),QList<int>{ModelRoles::nameRole});
     });
+    connect(o,&NftBox::stateChanged,this,[=]{
+        emit dataChanged(index(i),index(i),QList<int>{ModelRoles::stateRole});
+    });
     connect(o,&NftBox::uriChanged,this,[=]{
         emit dataChanged(index(i),index(i),QList<int>{ModelRoles::uriRole});
     });
@@ -186,6 +316,14 @@ void BoxModel::addBox(NftBox* o)
     emit countChanged(count());
     endInsertRows();
 
+}
+
+void BoxModel::mint(int i)
+{
+    if(boxes.at(i)->addressBech32().isNull())
+    {
+        boxes.at(i)->mint();
+    }
 }
 void BoxModel::rmBox(int i) {
     if(boxes.at(i)->addressBech32().isNull())

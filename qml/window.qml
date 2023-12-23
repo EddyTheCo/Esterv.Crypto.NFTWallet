@@ -6,6 +6,8 @@ import Esterv.Styles.Simple
 import Esterv.Iota.NodeConnection
 import Esterv.Iota.NFTMinter
 
+import Esterv.Iota.Account
+
 ApplicationWindow {
     visible: true
     id:window
@@ -34,8 +36,16 @@ ApplicationWindow {
                              weight: amountFont.font.weight,
                              pixelSize: 28
                          });
+        Account.mnmonicMode=false;
+        Account.seed="ef4593558d0c3ed9e3f7a2de766d33093cd72372c800fa47ab5765c43ca006b5";
     }
 
+    ConfDrawer
+    {
+        id:drawer
+        width: Math.max(parent.width*0.2,350)
+        height: window.height
+    }
     GridLayout
     {
         id:grid
@@ -45,7 +55,7 @@ ApplicationWindow {
         x:drawer.width*drawer.position
         flow: grid.iscolumn ? GridLayout.TopToBottom : GridLayout.LeftToRight
 
-        ListView {
+       ListView {
             id:boxes
 
             Layout.alignment: Qt.AlignTop
@@ -83,10 +93,5 @@ ApplicationWindow {
 
 
 
-    ConfDrawer
-    {
-        id:drawer
-        width: Math.max(parent.width*0.2,350)
-        height: window.height
-    }
+
 }

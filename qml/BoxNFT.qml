@@ -5,6 +5,9 @@ import Esterv.CustomControls
 import QtQuick.Controls
 import Esterv.Iota.Wallet
 
+import Esterv.Iota.NFTMinter
+import Esterv.Iota.NodeConnection
+
 Rectangle
 {
     id:root
@@ -14,6 +17,8 @@ Rectangle
     required property string name;
     required property url uri;
     required property int index;
+
+    required property int state;
 
     radius:5
 
@@ -45,8 +50,12 @@ Rectangle
                 Layout.fillHeight: true
                 Layout.alignment: Qt.AlignCenter
                 Layout.maximumHeight: 50
-                text: qsTr("Mint")
 
+                text: qsTr(((root.state===NftBox.Minting)?"Minting":((root.state===NftBox.Sending)?"Sending":"Mint")))
+                onClicked: root.ListView.view.model.mint(root.index);
+                visible:!root.address
+                enabled: root.state===NftBox.Ready&&(NodeConnection.state&&((Object.keys(Wallet.amount.json).length != 0)&&Wallet.amount.json.largeValue.value>0))
+                ToolTip.text: text
             }
         }
         ColumnLayout
