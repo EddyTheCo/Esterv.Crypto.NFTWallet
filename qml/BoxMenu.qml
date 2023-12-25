@@ -90,7 +90,7 @@ Rectangle
             }
             Button
             {
-                text:qsTr("Send")
+                text:qsTr((BoxModel.selecteds)?"Send":"Send all")
                 enabled:(NodeConnection.state&&((Object.keys(Wallet.amount.json).length != 0)&&Wallet.amount.json.largeValue.value>0))
                 Layout.fillWidth: true
                 Layout.maximumWidth: 50+150*root.incolum
