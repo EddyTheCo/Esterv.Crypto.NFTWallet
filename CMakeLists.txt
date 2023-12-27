@@ -66,6 +66,7 @@ qt6_add_qml_module(nftminter
     SOURCES
     src/CreateNFT.cpp include/CreateNFT.hpp
     QML_FILES
+    "qml/SendDialog.qml"
     "qml/BoxNFT.qml"
     "qml/BoxMenu.qml"
     "qml/ConfDrawer.qml"
