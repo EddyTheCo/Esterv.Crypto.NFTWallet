@@ -1,8 +1,13 @@
 import QtQuick
 import QtQuick.Layouts
-import MyDesigns
+import Esterv.Styles.Simple
+import Esterv.CustomControls
 import QtQuick.Controls
-import QtQrGen
+import Esterv.Iota.Wallet
+
+import Esterv.Iota.NFTMinter
+import Esterv.Iota.NodeConnection
+import Esterv.CustomControls.QrGen
 
 Rectangle
 {
@@ -10,144 +15,204 @@ Rectangle
     required property string issuer;
     required property string address;
     required property string metdata;
+    required property string name;
+    required property url uri;
     required property int index;
+
+    required property int state;
 
     radius:5
 
-    height:((root.address)?((root.issuer)?255:240):220) + 90*metframe.collapsed
-    color:CustomStyle.backColor1.lighter(1.4)
+    color:Style.backColor2.darker(1.4)
 
-    ColumnLayout
+    RowLayout
     {
-        id:dat
-        width:parent.width*0.95
-        height:parent.height*0.95
-        anchors.centerIn: parent
+        anchors.fill: parent
+        anchors.margins: 10
 
-        RowLayout
+        ColumnLayout
         {
-            Layout.alignment: (Qt.AlignTop)
+            Layout.fillHeight: true
             Layout.fillWidth: true
-            Layout.fillHeight:  true
-            Layout.maximumHeight: 60
-            Layout.minimumHeight: 20
-            Text
+            Layout.maximumWidth: parent.width*0.25
+            Image {
+                id: pic
+                source: root.uri
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+                Layout.minimumWidth: 75
+                Layout.minimumHeight: 75
+                Layout.alignment: Qt.AlignCenter
+                fillMode: Image.PreserveAspectFit
+            }
+            Button
             {
-                id:nfttext
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                Layout.alignment: Qt.AlignLeft|Qt.AlignTop
-                text: "NFT #" + (root.index+1)
-                fontSizeMode:Text.VerticalFit
-
-                font: CustomStyle.h1
-                color: CustomStyle.frontColor2
+                Layout.alignment: Qt.AlignCenter
+                Layout.maximumHeight: 50
+                text: qsTr((root.state===NftBox.Minting)?"Minting":((root.state===NftBox.Sending)?"Sending":"Mint"))
+                onClicked: root.ListView.view.model.mint(root.index);
+                enabled: root.state===NftBox.Ready&&(NodeConnection.state&&((Object.keys(Wallet.amount.json).length != 0)&&Wallet.amount.json.largeValue.value>0))
+                ToolTip.text: text
+                ToolTip.visible: hovered
+                visible:!root.address
             }
-
-            MyCheckBox
+            DelayButton
             {
-                id: isissuer
-                Layout.alignment: Qt.AlignRight|Qt.AlignTop
-                checked: root.address===root.ListView.view.model.cissuer
-                visible: root.address
-
-                text:qsTr("Use as issuer")
-                nextCheckState: function() {
-
-                    if(isissuer.checked)
-                    {
-                        root.ListView.view.model.unsetCissuer();
-                        return Qt.Unchecked
-                    }
-                    else
-                    {
-                        root.ListView.view.model.cissuer=root.address;
-                        return Qt.Checked
-                    }
-                }
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.alignment: Qt.AlignCenter
+                Layout.maximumHeight: 50
+                text: qsTr((root.state===NftBox.Ready)?"Burn":((root.state===NftBox.Sending)?"Sending":"Burning"))
+                onActivated: root.ListView.view.model.burn(root.index)
+                enabled: root.state===NftBox.Ready
+                ToolTip.text: qsTr("Hold to burn")
+                ToolTip.visible: hovered&&enabled
+                delay: 2000
+                visible:root.address
             }
-
-
-
         }
-
-        Item
+        ColumnLayout
         {
-            Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.maximumHeight: 60
-            Layout.minimumHeight: ((root.address)?18:0)+((root.issuer)?18:0)+5
-            Layout.alignment: Qt.AlignTop
-            Column
+            Layout.fillWidth: true
+            Item
             {
-                id:datcolumn
-                anchors.fill: parent
-                QrLabel
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.minimumHeight: 50
+                Text
                 {
-                    id:taddr
-                    visible:root.address
-                    width:Math.min(parent.width,implicitWidth)
-                    height:implicitHeight
-                    description:"Address"
-                    address:root.address
-                    color:"white"
+                    id:nfttext
+                    text: (root.name)?root.name:"NFT #" + (root.index+1)
+                    font: Style.h1
+                    color: Style.frontColor2
+                    width:parent.width-closebut.width
+                    height:parent.height
+
                 }
-                QrLabel
+                CloseButton
                 {
-                    id:tissuer
-                    visible:root.issuer
-                    width:Math.min(parent.width,implicitWidth)
-                    height:implicitHeight
-                    description:"Issuer"
-                    address:root.issuer
-                    color:"white"
+                    id:closebut
+                    anchors.right: parent.right
+                    anchors.top:parent.top
+                    visible:!root.address&&(root.state===NftBox.Ready)
+                    width:32
+                    height:32
+                    radius:32
+                    flat:true
+                    onClicked:
+                    {
+                        root.ListView.view.model.rmBox(root.index);
+                    }
+                }
+                CheckBox
+                {
+                    id:select
+                    anchors.right: parent.right
+                    anchors.top:parent.top
+                    visible:root.address&&(root.state===NftBox.Ready)
+                    width:32
+                    height:32
+                    onCheckedChanged:
+                    {
+                        root.ListView.view.model.setProperty(root.index,"selected",select.checked);
+                    }
                 }
             }
-        }
 
 
-        MyFrame{
-            id:metframe
-            visible:root.metdata||!root.address
-            description: qsTr("Metadata")
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            Layout.alignment: Qt.AlignTop
-            ScrollView {
-                id:scrl
-                visible:metframe.collapsed
-                anchors.fill: parent
-                TextArea
+            Frame
+            {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.minimumHeight: 100
+                visible:root.metdata||!root.address
+                Label
                 {
-                    id:metadata
-                    visible:metframe.collapsed
-                    readOnly:root.address
-                    placeholderText: (root.address)?"":qsTr('{\n"standard": "IRC27",\n"type": "image/jpeg",\n"version": "v1.0"\n}')
+                    id:metla
+                    text:qsTr("Metadata:")
+                }
+                ScrollView {
+                    id:scrl
+                    anchors.top: metla.bottom
+                    width:parent.width
+                    height:parent.height-metla.height
+                    TextArea
+                    {
+                        id:metadata
+                        readOnly:root.address || root.state!==NftBox.Ready
+                        placeholderText: (root.address)?"":qsTr('{\n"standard": "IRC27",\n"type": "image/jpeg",\n"version": "v1.0"\n}')
+                        anchors.fill: parent
+                        text: (root.address)?root.metdata:"";
+                        onEditingFinished: (metadata.readOnly)?console.log("Fix this"):root.ListView.view.model.setProperty(root.index,"metdata",metadata.text);
+                    }
+                }
+            }
+
+            Frame
+            {
+                Layout.fillWidth: true
+                Layout.minimumWidth: 100
+                Layout.minimumHeight: 50
+                Layout.alignment: Qt.AlignTop
+                GridLayout
+                {
                     anchors.fill: parent
-                    text: (root.address)?root.metdata:"";
-                    onEditingFinished: root.ListView.view.model.setProperty(root.index,"metdata",metadata.text);
-                    color:CustomStyle.frontColor1
-                    placeholderTextColor:CustomStyle.midColor1
-                }
-            }
-        }
-    }
-    CloseButton
-    {
-        id: rmv
-        anchors.right: root.right
-        anchors.top: root.top
-        anchors.margins: 10
-        width:14
-        height:14
-        visible: !root.address
-        onClicked:
-        {
-            root.ListView.view.model.rmBox(root.index);
-        }
+                    columns: 2
+                    Label
+                    {
+                        id:addrla
+                        visible: root.address
+                        text:qsTr("Address:")
+                    }
+                    QrText
+                    {
+                        text:root.address
+                        visible: root.address
+                        Layout.fillWidth: true
+                        Layout.maximumWidth: implicitWidth
+                    }
+                    Label
+                    {
+                        id:issuerla
+                        text:qsTr("Issuer:")
+                        visible:(!root.address||root.issuer)
+                    }
+                    QrText
+                    {
+                        text:root.issuer
+                        visible: root.address&&root.issuer
+                        Layout.fillWidth: true
+                        Layout.maximumWidth: implicitWidth
+                    }
+                    ComboBox {
+                        id:issuerSelector
+                        Layout.fillWidth: true
+                        visible:!root.address
+                        currentIndex:-1
+                        editable: false
+                        enabled: root.state===NftBox.Ready
+                        model: Wallet.addresses
+                        textRole:"bech32Address"
+                        onActivated: {
+                            root.ListView.view.model.setProperty(root.index,"issuer",issuerSelector.currentText);
+                        }
 
+                    }
+
+                }
+
+
+
+            }
+
+
+        }
     }
+
+
 }
 
 
