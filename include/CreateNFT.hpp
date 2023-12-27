@@ -70,8 +70,6 @@ signals:
     void uriChanged();
     void nameChanged();
     void stateChanged();
-    void notEnought(QJsonObject);
-    void wrongIssuer(QString);
     void remove();
     void selectedChanged();
 
@@ -116,7 +114,13 @@ public:
         emit newBoxesChanged();
     };
     void addBox(NftBox* nbox);
-    Q_INVOKABLE void sendSelecteds(QString recAddr, QString retAddr=QString(), QDateTime unixTime=QDateTime());
+    Q_INVOKABLE void send(QString recAddr, QString retAddr, QDateTime unixTime)
+    {
+        if(m_selecteds)sendSelecteds(recAddr, retAddr, unixTime);
+        else sendAll(recAddr);
+
+    };
+
     Q_INVOKABLE void rmBox(int i);
     Q_INVOKABLE void mint(int i){
         if(boxes.at(i)->addressBech32().isNull())
@@ -145,6 +149,8 @@ signals:
     void selectedsChanged();
 
 private:
+    void sendSelecteds(QString recAddr, QString retAddr, QDateTime unixTime);
+    void sendAll(QString recAddr);
     void gotInput(c_array id);
     void lostInput(c_array id);
     int m_count,newBoxes_,m_selecteds;

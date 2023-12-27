@@ -64,11 +64,11 @@ Rectangle
                 Layout.fillHeight: true
                 Layout.alignment: Qt.AlignCenter
                 Layout.maximumHeight: 50
-                text: qsTr((root.state===NftBox.Burning)?"Burning":"Burn")
+                text: qsTr((root.state===NftBox.Ready)?"Burn":((root.state===NftBox.Sending)?"Sending":"Burning"))
                 onActivated: root.ListView.view.model.burn(root.index)
                 enabled: root.state===NftBox.Ready
                 ToolTip.text: qsTr("Hold to burn")
-                ToolTip.visible: hovered&&NftBox.Ready
+                ToolTip.visible: hovered&&enabled
                 delay: 2000
                 visible:root.address
             }
@@ -98,9 +98,9 @@ Rectangle
                     anchors.right: parent.right
                     anchors.top:parent.top
                     visible:!root.address&&(root.state===NftBox.Ready)
-                    width:40
-                    height:40
-                    radius:40
+                    width:32
+                    height:32
+                    radius:32
                     flat:true
                     onClicked:
                     {
@@ -113,8 +113,8 @@ Rectangle
                     anchors.right: parent.right
                     anchors.top:parent.top
                     visible:root.address&&(root.state===NftBox.Ready)
-                    width:40
-                    height:40
+                    width:32
+                    height:32
                     onCheckedChanged:
                     {
                         root.ListView.view.model.setProperty(root.index,"selected",select.checked);
@@ -142,11 +142,11 @@ Rectangle
                     TextArea
                     {
                         id:metadata
-                        readOnly:root.address
+                        readOnly:root.address || root.state!==NftBox.Ready
                         placeholderText: (root.address)?"":qsTr('{\n"standard": "IRC27",\n"type": "image/jpeg",\n"version": "v1.0"\n}')
                         anchors.fill: parent
                         text: (root.address)?root.metdata:"";
-                        onEditingFinished: root.ListView.view.model.setProperty(root.index,"metdata",metadata.text);
+                        onEditingFinished: (metadata.readOnly)?console.log("Fix this"):root.ListView.view.model.setProperty(root.index,"metdata",metadata.text);
                     }
                 }
             }
@@ -193,7 +193,7 @@ Rectangle
                         visible:!root.address
                         currentIndex:-1
                         editable: false
-
+                        enabled: root.state===NftBox.Ready
                         model: Wallet.addresses
                         textRole:"bech32Address"
                         onActivated: {

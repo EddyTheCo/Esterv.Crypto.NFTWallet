@@ -17,6 +17,18 @@ Rectangle
     signal showSettings()
     color:Style.backColor2
     radius:3
+
+    SendDialog
+    {
+        id:senddiallog
+        width:350
+        height:450
+        anchors.centerIn: Overlay.overlay
+        closePolicy: Popup.CloseOnPressOutside
+        focus:true
+        modal:true
+    }
+
     ColumnLayout
     {
         anchors.fill: parent
@@ -60,8 +72,9 @@ Rectangle
 
         GridLayout
         {
-            rowSpacing: 10
+            rowSpacing: 5
             columnSpacing: 15
+            Layout.margins: 5
             Layout.fillHeight: true
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignCenter
@@ -73,7 +86,7 @@ Rectangle
                 text:qsTr("Settings")
                 onReleased:root.showSettings();
                 Layout.fillWidth: true
-                Layout.maximumWidth: 50+150*root.incolum
+                Layout.maximumWidth: 200
                 Layout.maximumHeight:  50
                 ToolTip.text: text
                 ToolTip.visible: hovered
@@ -82,7 +95,7 @@ Rectangle
             {
                 text:qsTr("Add New")
                 Layout.fillWidth: true
-                Layout.maximumWidth: 50+150*root.incolum
+                Layout.maximumWidth: 200
                 Layout.maximumHeight:  50
                 ToolTip.text: text
                 ToolTip.visible: hovered
@@ -93,10 +106,11 @@ Rectangle
                 text:qsTr((BoxModel.selecteds)?"Send":"Send all")
                 enabled:(NodeConnection.state&&((Object.keys(Wallet.amount.json).length != 0)&&Wallet.amount.json.largeValue.value>0))
                 Layout.fillWidth: true
-                Layout.maximumWidth: 50+150*root.incolum
+                Layout.maximumWidth: 200
                 Layout.maximumHeight:  50
                 ToolTip.text: text
                 ToolTip.visible: hovered
+                onClicked: senddiallog.visible=true;
             }
         }
 
