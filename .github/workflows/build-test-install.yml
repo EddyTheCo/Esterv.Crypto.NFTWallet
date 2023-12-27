@@ -15,7 +15,7 @@ jobs:
         sharedLib: [true]
         useThread: [true]
 
-    uses: EddyTheCo/Common/.github/workflows/build-test-install.yml@main
+    uses: EddyTheCo/Common/.github/workflows/build-test-install.yml@v0.1.1
     permissions:
       contents: write
     with:
@@ -33,7 +33,7 @@ jobs:
         useThread: [true]
         qtArch: ['android_arm64_v8a','android_armv7']  
 
-    uses: EddyTheCo/Common/.github/workflows/build-android.yml@main
+    uses: EddyTheCo/Common/.github/workflows/build-android.yml@v0.1.1
     with:
       qtModules: 'qtwebsockets qtshadertools qtmultimedia'
       qtTarget: 'nftminter'
