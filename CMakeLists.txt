@@ -86,7 +86,7 @@ if(EMSCRIPTEN OR ANDROID)
     target_link_libraries(nftminter PRIVATE EstervDesigns::FlatControl Qt6::QuickControls2
         $<$<STREQUAL:$<TARGET_PROPERTY:EstervDesigns::FlatControl,TYPE>,STATIC_LIBRARY>:EstervDesigns::FlatControlplugin>
     )
-target_compile_definitions(${example} PRIVATE FORCE_STYLE="Esterv.Controls.Flat")
+target_compile_definitions(nftminter PRIVATE FORCE_STYLE="Esterv.Controls.Flat")
 endif(EMSCRIPTEN OR ANDROID)
 
 if(TARGET Qt6::Multimedia)
