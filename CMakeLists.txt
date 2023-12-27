@@ -22,6 +22,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 include(GNUInstallDirs)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml OPTIONAL_COMPONENTS Multimedia)
 
 FetchContent_Declare(
     IotaWallet
@@ -48,7 +49,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(DTPickersQML)
 
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml OPTIONAL_COMPONENTS Multimedia)
 
 if(EMSCRIPTEN OR ANDROID)
     find_package(Qt6 REQUIRED COMPONENTS QuickControls2)
@@ -80,7 +80,7 @@ qt6_add_qml_module(nftminter
 )
 
 
-target_link_libraries(nftminter PRIVATE Qt::Core Qt::Gui Qt::Qml Qt::Quick )
+target_link_libraries(nftminter PRIVATE Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick )
 
 if(EMSCRIPTEN OR ANDROID)
     target_link_libraries(nftminter PRIVATE EstervDesigns::FlatControl Qt6::QuickControls2
@@ -131,7 +131,7 @@ install(TARGETS nftminter
     DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-
+set(QTDEPLOY ON)
 if(QTDEPLOY)
     qt_generate_deploy_qml_app_script(
         TARGET nftminter
