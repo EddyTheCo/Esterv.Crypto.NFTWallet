@@ -139,6 +139,7 @@ if(QTDEPLOY)
 install(SCRIPT ${deploy_script})
 endif(QTDEPLOY)
 if(EMSCRIPTEN)
+target_compile_definitions(nftminter PRIVATE USE_EMSCRIPTEN)
     add_custom_command(
         TARGET nftminter
         POST_BUILD
