@@ -36,8 +36,6 @@ ApplicationWindow {
                              weight: amountFont.font.weight,
                              pixelSize: 28
                          });
-        Account.mnmonicMode=false;
-        Account.seed="ef4593558d0c3ed9e3f7a2de766d33093cd72372c800fa47ab5765c43ca006b5";
     }
 
     ConfDrawer
