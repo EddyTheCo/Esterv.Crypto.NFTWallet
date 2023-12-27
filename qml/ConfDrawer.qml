@@ -1,9 +1,11 @@
 import QtQuick.Controls
 import QtQuick
 import QtQuick.Layouts
-import nodeConection
-import account
-import CustomStyle 1.0
+import Esterv.Iota.Account
+import Esterv.Styles.Simple
+import Esterv.Iota.NodeConnection
+import Esterv.CustomControls
+
 Drawer
 {
     id: drawer
@@ -12,27 +14,27 @@ Drawer
     modal:true
     background: Rectangle
     {
-        color:CustomStyle.backColor1
+        color:Style.backColor2
     }
 
-    ColumnLayout  //is better to use a ScrollView here
-    {
-        width:parent.width
-        height:100
-        Node_Connections
+    ColumnLayout {
+        anchors.fill: parent
+        Layout.margins: 5
+        ThemeSwitch
+        {
+
+        }
+
+        NodeConnectionSettings
         {
             id:conn_
             Layout.fillWidth: true
-            Layout.minimumHeight: 30
-            collapsed:1.0
         }
-        AccountQml
+        AccountSettings
         {
             id:acc_
             Layout.fillWidth: true
-            Layout.minimumHeight: 30
         }
-
     }
 
 }

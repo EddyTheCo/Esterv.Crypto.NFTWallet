@@ -6,7 +6,7 @@ on:
     branches: [main]
 jobs:
   build-html:
-    uses: EddyTheCo/Common/.github/workflows/build-wasm.yml@main
+    uses: EddyTheCo/Common/.github/workflows/build-wasm.yml@v0.1.1
     if: ${{ (github.event.pull_request.merged == true) && (startsWith(github.base_ref, 'main')) }}  
     permissions:
       pages: write
