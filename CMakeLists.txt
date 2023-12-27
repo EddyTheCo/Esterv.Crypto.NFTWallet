@@ -131,7 +131,6 @@ install(TARGETS nftminter
     DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-set(QTDEPLOY ON)
 if(QTDEPLOY)
     qt_generate_deploy_qml_app_script(
         TARGET nftminter
