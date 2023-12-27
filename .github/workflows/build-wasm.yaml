@@ -13,5 +13,7 @@ jobs:
       id-token: write
     with:
       qtModules: 'qtwebsockets qtshadertools'
+      qtVersion: '6.6.0'
+      emsdkVersion: '3.1.37'
     secrets:
       NODE_JWT: ${{ secrets.NODE_JWT }}
