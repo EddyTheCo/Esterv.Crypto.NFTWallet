@@ -81,9 +81,6 @@ qt6_add_qml_module(nftminter
 
 
 target_link_libraries(nftminter PRIVATE Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick )
-if(TARGET QtQrDec)
-    target_compile_definitions(nftminter PRIVATE USE_QRDEC)
-endif(TARGET QtQrDec)
 
 if(EMSCRIPTEN OR ANDROID)
     target_link_libraries(nftminter PRIVATE EstervDesigns::FlatControl Qt6::QuickControls2
@@ -116,10 +113,16 @@ endif(NOT android_openssl_POPULATED)
 
 endif(ANDROID)
 
-target_link_libraries(nftminter PRIVATE IotaWallet::wallet qrCode::QtQrGen qrCode::QtQrDec  DTPickersQML::DTPickers
+if(TARGET QtQrDec)
+    target_compile_definitions(nftminter PRIVATE USE_QRDEC)
+target_link_libraries(nftminter PRIVATE qrCode::QtQrDec  
+    $<$<STREQUAL:$<TARGET_PROPERTY:qrCode::QtQrDec,TYPE>,STATIC_LIBRARY>:qrCode::QtQrDecplugin>
+)
+endif(TARGET QtQrDec)
+target_link_libraries(nftminter PRIVATE IotaWallet::wallet qrCode::QtQrGen DTPickersQML::DTPickers
     $<$<STREQUAL:$<TARGET_PROPERTY:DTPickersQML::DTPickers,TYPE>,STATIC_LIBRARY>:DTPickersQML::DTPickersplugin>
     $<$<STREQUAL:$<TARGET_PROPERTY:qrCode::QtQrGen,TYPE>,STATIC_LIBRARY>:qrCode::QtQrGenplugin>
-    $<$<STREQUAL:$<TARGET_PROPERTY:qrCode::QtQrDec,TYPE>,STATIC_LIBRARY>:qrCode::QtQrDecplugin>
+    $<$<STREQUAL:$<TARGET_PROPERTY:IotaWallet::wallet,TYPE>,STATIC_LIBRARY>:IotaWallet::walletplugin>
 )
 set_target_properties(nftminter PROPERTIES
     WIN32_EXECUTABLE ON
