@@ -116,6 +116,7 @@ endif(ANDROID)
 target_link_libraries(nftminter PRIVATE IotaWallet::wallet qrCode::QtQrGen qrCode::QtQrDec  DTPickersQML::DTPickers
     $<$<STREQUAL:$<TARGET_PROPERTY:DTPickersQML::DTPickers,TYPE>,STATIC_LIBRARY>:DTPickersQML::DTPickersplugin>
     $<$<STREQUAL:$<TARGET_PROPERTY:qrCode::QtQrGen,TYPE>,STATIC_LIBRARY>:qrCode::QtQrGenplugin>
+    $<$<STREQUAL:$<TARGET_PROPERTY:IotaWallet::wallet,TYPE>,STATIC_LIBRARY>:IotaWallet::walletplugin>
     $<$<STREQUAL:$<TARGET_PROPERTY:qrCode::QtQrDec,TYPE>,STATIC_LIBRARY>:qrCode::QtQrDecplugin>
 )
 set_target_properties(nftminter PROPERTIES
