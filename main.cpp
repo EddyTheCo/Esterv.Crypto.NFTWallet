@@ -2,7 +2,6 @@
 #include <QQmlApplicationEngine>
 #include "Qrimageprovider.hpp"
 #include "Qrimagedecoder.hpp"
-
 #if defined(FORCE_STYLE)
 #include <QQuickStyle>
 #endif

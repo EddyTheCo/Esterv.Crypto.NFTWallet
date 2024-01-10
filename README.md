@@ -1,19 +1,24 @@
 # [NftMinter](https://eddytheco.github.io/NftMinter/index.html)
 
 
-This repo produce an application that can mint NFTs on networks of IOTA with stardust protocol.
+This repo produces an application that can mint NFTs on networks of IOTA with stardust protocol.
 
-In order to use the application one needs to set the address of the node to connect.
+To use the application one needs to set the address of the node to connect.
 The Proof of Work has to be performed by the node (by setting the JWT for protected routes, by enabling PoW in the node...).
 This application is meant to be used on the testnet.
 If using the mainnet **you are the ONLY responsible for the eventual loss of your funds**.
 
 
-The application produce a random seed to be able to sign blocks using the 0 index address.
+The application produces a random seed to be able to sign blocks using the 0 index address.
 The application is not intended to store funds or NFTs on that seed.
 One could also save the produced seed just in case. 
 Although you can set a seed  for recovering, **you should not input your personal seeds to the app**(read again the bold phrases).
 
+<div id="embedvideo">
+<a href="https://www.youtube.com/watch?v=UK_493BTI1M">
+<img src="https://img.youtube.com/vi/UK_493BTI1M/0.jpg"></img>
+</a>
+</div>
 
 ### CORS header 'Access-Control-Allow-Origin' missing
 

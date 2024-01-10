@@ -1,6 +1,8 @@
 let qtModule = undefined;
 async function init() {
-
+	
+	const videodiv = document.querySelector('#embedvideo');
+	videodiv.innerHTML='<iframe width="560" height="315" src="https://www.youtube.com/embed/UK_493BTI1M?si=Ab3KWGpPy0hE5Af9" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>'
 	const rootDiv = document.querySelector('#qtrootDiv');
 
 	rootDiv.innerHTML += '<figure  id="qtspinner"> <center > <img id="logo" crossorigin="anonymous" src="img/esterlogo.png" ></img> <div id="qtstatus"></div> </center> </figure> <div class="qtscreen" id="screen" ></div>';
