@@ -14,8 +14,9 @@ The application is not intended to store funds or NFTs on that seed.
 One could also save the produced seed just in case. 
 Although you can set a seed  for recovering, **you should not input your personal seeds to the app**(read again the bold phrases).
 
-[![NFT Minter showcase](https://img.youtube.com/vi/UK_493BTI1M/0.jpg)](https://www.youtube.com/watch?v=UK_493BTI1M)
-
+<a href="https://www.youtube.com/watch?v=UK_493BTI1M" id="embedvideo" data-id="UK_493BTI1M">
+<img src="https://img.youtube.com/vi/UK_493BTI1M/0.jpg">
+</a>
 ### CORS header 'Access-Control-Allow-Origin' missing
 
 When using the browser application and your node, the API request could be denied with the return 'Reason: CORS header 'Access-Control-Allow-Origin' missing'.
