@@ -14,8 +14,6 @@ The application is not intended to store funds or NFTs on that seed.
 One could also save the produced seed just in case. 
 Although you can set a seed  for recovering, **you should not input your personal seeds to the app**(read again the bold phrases).
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/UK_493BTI1M?si=LLiSe2_PXXVPA7Nt" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-
 [![NFT Minter showcase](https://img.youtube.com/vi/UK_493BTI1M/0.jpg)](https://www.youtube.com/watch?v=UK_493BTI1M)
 
 ### CORS header 'Access-Control-Allow-Origin' missing
