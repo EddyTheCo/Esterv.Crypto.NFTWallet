@@ -14,11 +14,7 @@ The application is not intended to store funds or NFTs on that seed.
 One could also save the produced seed just in case. 
 Although you can set a seed  for recovering, **you should not input your personal seeds to the app**(read again the bold phrases).
 
-<div id="embedvideo">
-<a href="https://www.youtube.com/watch?v=UK_493BTI1M">
-<img src="https://img.youtube.com/vi/UK_493BTI1M/0.jpg"></img>
-</a>
-</div>
+Watch the [showcase video](https://www.youtube.com/watch?v=UK_493BTI1M)
 
 ### CORS header 'Access-Control-Allow-Origin' missing
 
