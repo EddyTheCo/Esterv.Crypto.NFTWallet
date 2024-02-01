@@ -325,7 +325,7 @@ void NftBox::setMetdata(QString data)
 BoxModel::BoxModel(QObject *parent)
     : QAbstractListModel(parent),newBoxes_(0),m_selecteds(0){
 
-    connect(Wallet::instance(),&Wallet::resetted,this,[=](){clearBoxes(false);});
+    connect(Wallet::instance(),&Wallet::synced,this,[=](){clearBoxes(false);});
     connect(Wallet::instance(),&Wallet::inputAdded,this,&BoxModel::gotInput);
     connect(Wallet::instance(),&Wallet::inputRemoved,this,[=](c_array id)
             {
@@ -490,6 +490,7 @@ void BoxModel::sendSelecteds(QString recAddr,  QString retAddr, QDateTime unixTi
                               consume(inputSet,stateOutputs1,0,{Output::NFT_typ},outids);
 
             quint64 stateAmount=0;
+            std::shared_ptr<Output> last;
             for (auto i = stateOutputs1.cbegin(), end = stateOutputs1.cend(); i != end; ++i)
             {
                 auto out=i.value().output->clone();
@@ -514,34 +515,39 @@ void BoxModel::sendSelecteds(QString recAddr,  QString retAddr, QDateTime unixTi
                 out->amount_=cdep;
                 stateAmount+=cdep;
                 theOutputs.push_back(out);
+                last=out;
             }
-            StateOutputs stateOutputs2;
 
             auto BaOut=Output::Basic(0,{unlock});
             const auto minDeposit=Client::get_deposit(BaOut,info);
             if(consumedAmount<stateAmount+minDeposit)
             {
+                StateOutputs stateOutputs2;
                 consumedAmount+=Wallet::instance()->
                                   consume(inputSet,stateOutputs2,0,{Output::Basic_typ},{}); //Fix this set the amount need it
+                for(const auto &v:std::as_const(stateOutputs2))
+                {
+                    auto out=v.output->clone();
+                    auto prevUnlocks=out->unlock_conditions_;
+                    out->consume();
+                    out->unlock_conditions_=prevUnlocks;   //Fix: Add state transition is if alias
+                    const auto cdep=NodeConnection::instance()->rest()->get_deposit(out,info);
+                    out->amount_=cdep;
+                    stateAmount+=cdep;
+                    theOutputs.push_back(out);
+                }
             }
 
-            for(const auto &v:std::as_const(stateOutputs2))
-            {
-                auto out=v.output->clone();
-                auto prevUnlocks=out->unlock_conditions_;
-                out->consume();
-                out->unlock_conditions_=prevUnlocks;   //Fix: Add state transition is if alias
-                const auto cdep=NodeConnection::instance()->rest()->get_deposit(out,info);
-                out->amount_=cdep;
-                stateAmount+=cdep;
-                theOutputs.push_back(out);
-            }
             if(consumedAmount>=stateAmount)
             {
                 if(consumedAmount-stateAmount>minDeposit)
                 {
                     BaOut->amount_=consumedAmount-stateAmount;
                     theOutputs.push_back(BaOut);
+                }
+                else
+                {
+                    last->amount_+=consumedAmount-stateAmount;
                 }
 
                 auto payloadusedids=Wallet::instance()->createTransaction(inputSet,info,theOutputs);
