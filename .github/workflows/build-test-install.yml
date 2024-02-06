@@ -18,7 +18,7 @@ jobs:
       contents: write
     with:
       os: ${{ matrix.os }}
-      cmakeArgs: ' -DUSE_THREADS=ON '  
+      cmakeArgs: ' -DUSE_THREADS=ON -DQTDEPLOY=ON'  
       qtModules: 'qtwebsockets qtshadertools qtmultimedia'
       qtVersion: '6.6.0'  
       test: false
