@@ -42,7 +42,6 @@ a{
 	float: left;
 }
 #editor {
-	visibility: hidden;
 }
 .qtscreen { width: 100%; height: 100%; }
 figure
@@ -119,7 +118,6 @@ footer
 	#editor {
 		width: 100%;
 		height: 100%;
-		visibility: visible;
 		font-family: 'Ubuntu Condensed';
 		font-size: 1.3vw;
 		overflow-y:scroll;
