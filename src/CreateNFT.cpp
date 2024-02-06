@@ -8,6 +8,7 @@
 #include"nodeConnection.hpp"
 #include "qaddr_bundle.hpp"
 #include "qwallet.hpp"
+#include "account.hpp"
 
 size_t NftBox::index=0;
 bool NftBox::set_addr(QString var_str,c_array& var)
@@ -325,6 +326,8 @@ void NftBox::setMetdata(QString data)
 BoxModel::BoxModel(QObject *parent)
     : QAbstractListModel(parent),newBoxes_(0),m_selecteds(0){
 
+    Account::instance()->setVaultFile(
+        QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)+"/NFTMinter/qvault.bin");
     connect(Wallet::instance(),&Wallet::synced,this,[=](){clearBoxes(false);});
     connect(Wallet::instance(),&Wallet::inputAdded,this,&BoxModel::gotInput);
     connect(Wallet::instance(),&Wallet::inputRemoved,this,[=](c_array id)
