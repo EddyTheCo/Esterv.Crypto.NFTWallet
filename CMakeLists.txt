@@ -27,7 +27,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml OPTIONAL_COMPONENTS Mult
 FetchContent_Declare(
     IotaWallet
     GIT_REPOSITORY https://github.com/EddyTheCo/qWallet-IOTA.git
-    GIT_TAG v0.1.2
+    GIT_TAG v0.2.0
     FIND_PACKAGE_ARGS 0.1 CONFIG
 )
 FetchContent_MakeAvailable(IotaWallet)
