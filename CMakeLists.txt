@@ -27,23 +27,23 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml OPTIONAL_COMPONENTS Mult
 FetchContent_Declare(
     IotaWallet
     GIT_REPOSITORY https://github.com/EddyTheCo/qWallet-IOTA.git
-    GIT_TAG v0.2.0
-    FIND_PACKAGE_ARGS 0.1 CONFIG
+    GIT_TAG v0.2.1
+    FIND_PACKAGE_ARGS 0.2 CONFIG
 )
 FetchContent_MakeAvailable(IotaWallet)
 
 FetchContent_Declare(
     qrCode
     GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
-    GIT_TAG  v1.0.2
-    FIND_PACKAGE_ARGS 1.0 CONFIG
+    GIT_TAG  v1.0.3
+    FIND_PACKAGE_ARGS 1.0 COMPONENTS QtQrDec QtQrGen CONFIG
 )
 FetchContent_MakeAvailable(qrCode)
 
 FetchContent_Declare(
     DTPickersQML
     GIT_REPOSITORY https://github.com/EddyTheCo/DateTimePickers.git
-    GIT_TAG v0.1.3
+    GIT_TAG v0.1.4
     FIND_PACKAGE_ARGS 0.1 CONFIG
 )
 FetchContent_MakeAvailable(DTPickersQML)

@@ -2,6 +2,7 @@
 
 
 This repo produces an application that can mint NFTs on networks of IOTA with stardust protocol.
+We are not interested in the speculative side of crypto and we are not associated with the Iota Foundation. We discourage investing in Shimmer and IOTA because that will be investing in the Iota Foundation and its pursuit of centralizing the development and protocol.
 
 To use the application one needs to set the address of the node to connect.
 The Proof of Work has to be performed by the node.
