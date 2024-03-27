@@ -141,10 +141,9 @@ set_target_properties(nftminter PROPERTIES
 target_include_directories(nftminter PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 install(TARGETS nftminter
-        BUNDLE  DESTINATION .
+        COMPONENT Nftminter
+        BUNDLE  DESTINATION . COMPONENT Nftminter
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        COMPONENT nftminter
 	)
 if(QTDEPLOY)
     FetchContent_Declare(
@@ -162,7 +161,7 @@ if(QTDEPLOY)
 		TARGET nftminter
 		OUTPUT_SCRIPT deploy_script
 		)
-	install(SCRIPT ${deploy_script})
+        install(SCRIPT ${deploy_script} COMPONENT Nftminter)
 	target_compile_definitions(nftminter PRIVATE USE_UPDATER)
 
 endif(QTDEPLOY)
