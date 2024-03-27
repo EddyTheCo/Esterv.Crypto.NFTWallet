@@ -218,7 +218,7 @@ Popup
             onActivated:
             {
 
-                BoxModel.send((parseInt(sendAmount.text)>0)?sendAmount.text:"0",recAddress.text, timeselector.currentValue);
+                BoxModel.send((tokenAmount.visible)?sendAmount.text:"0",recAddress.text, timeselector.currentValue);
 
                 control.close();
             }
