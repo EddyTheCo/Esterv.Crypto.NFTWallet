@@ -7,7 +7,7 @@ include(FetchContent)
 FetchContent_Declare(
 	ccommon
 	GIT_REPOSITORY https://github.com/EddyTheCo/Common.git
-	GIT_TAG use_IFW
+	GIT_TAG v0.3.0
 	)
 FetchContent_MakeAvailable(ccommon)
 version_from_git(
@@ -27,16 +27,16 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml OPTIONAL_COMPONENTS Mult
 FetchContent_Declare(
 	EstervDesigns
 	GIT_REPOSITORY https://github.com/EddyTheCo/MyDesigns.git
-	GIT_TAG use_IFW
-	FIND_PACKAGE_ARGS 1.1 COMPONENTS SimpleStyle CustomControls CONFIG
+	GIT_TAG v1.2.0
+	FIND_PACKAGE_ARGS 1.2 COMPONENTS SimpleStyle CustomControls CONFIG
 	)
 FetchContent_MakeAvailable(EstervDesigns)
 
 FetchContent_Declare(
 	IotaWallet
 	GIT_REPOSITORY https://github.com/EddyTheCo/qWallet-IOTA.git
-	GIT_TAG use_IFW
-	FIND_PACKAGE_ARGS 0.2 CONFIG
+	GIT_TAG v0.3.0
+	FIND_PACKAGE_ARGS 0.3 CONFIG
 	)
 FetchContent_MakeAvailable(IotaWallet)
 
@@ -44,16 +44,16 @@ FetchContent_MakeAvailable(IotaWallet)
 FetchContent_Declare(
 	qrCode
 	GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
-	GIT_TAG use_IFW
-	FIND_PACKAGE_ARGS 1.0 COMPONENTS QtQrDec QtQrGen CONFIG
+	GIT_TAG v1.1.0
+	FIND_PACKAGE_ARGS 1.1 COMPONENTS QtQrDec QtQrGen CONFIG
 	)
 FetchContent_MakeAvailable(qrCode)
 
 FetchContent_Declare(
 	DTPickersQML
 	GIT_REPOSITORY https://github.com/EddyTheCo/DateTimePickers.git
-	GIT_TAG use_IFW
-	FIND_PACKAGE_ARGS 0.1 CONFIG
+	GIT_TAG v0.2.0
+	FIND_PACKAGE_ARGS 0.2 CONFIG
 	)
 FetchContent_MakeAvailable(DTPickersQML)
 
@@ -149,8 +149,8 @@ if(QTDEPLOY)
     FetchContent_Declare(
             QtUpdater
             GIT_REPOSITORY https://github.com/EddyTheCo/QUpdater.git
-            GIT_TAG use_IFW
-            FIND_PACKAGE_ARGS 0.1 CONFIG
+            GIT_TAG v0.0.4
+            FIND_PACKAGE_ARGS 0.0 CONFIG
             )
     FetchContent_MakeAvailable(QtUpdater)
 
