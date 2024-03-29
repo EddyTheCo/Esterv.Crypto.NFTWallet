@@ -44,7 +44,7 @@ FetchContent_MakeAvailable(IotaWallet)
 FetchContent_Declare(
 	qrCode
 	GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
-	GIT_TAG 1.1.0
+	GIT_TAG v1.1.0
 	FIND_PACKAGE_ARGS 1.1 COMPONENTS QtQrDec QtQrGen CONFIG
 	)
 FetchContent_MakeAvailable(qrCode)
