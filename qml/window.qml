@@ -4,7 +4,7 @@ import QtQuick.Layouts
 
 import Esterv.Styles.Simple
 import Esterv.Iota.NodeConnection
-import Esterv.Iota.NFTMinter
+import Esterv.Crypto.NFTWallet
 
 import Esterv.Iota.Account
 

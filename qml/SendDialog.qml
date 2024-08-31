@@ -4,7 +4,7 @@ import Esterv.CustomControls
 import QtQuick.Controls
 
 
-import Esterv.Iota.NFTMinter
+import Esterv.Crypto.NFTWallet
 import Esterv.CustomControls.QrDec
 import Esterv.Iota.AddrBundle
 import Esterv.Iota.Wallet

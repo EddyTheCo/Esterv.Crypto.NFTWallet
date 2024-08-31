@@ -5,7 +5,9 @@ import Esterv.Iota.Account
 import Esterv.Styles.Simple
 import Esterv.Iota.NodeConnection
 import Esterv.CustomControls
-import Esterv.Iota.NFTMinter
+import Esterv.Crypto.NFTWallet
+import Esterv.AboutEstervNFTWallet
+
 Drawer
 {
     id: drawer
@@ -20,11 +22,32 @@ Drawer
     ColumnLayout {
         anchors.fill: parent
 
-
-        ThemeSwitch
+        RowLayout
         {
-            Layout.alignment: Qt.AlignTop || Qt.AlignLeft
+            ThemeSwitch
+            {
+                Layout.alignment: Qt.AlignTop || Qt.AlignLeft
+            }
+            Button
+            {
+                text:"About"
+                onClicked:aboutpop.open()
+            }
         }
+
+        Popup
+        {
+            id:aboutpop
+            visible:false
+            anchors.centerIn: Overlay.overlay
+            closePolicy: Popup.CloseOnPressOutside
+            modal:true
+            About
+            {
+                anchors.fill: parent
+            }
+        }
+
 
         NodeConnectionSettings
         {

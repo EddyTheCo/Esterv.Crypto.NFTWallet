@@ -4,3 +4,7 @@ doc/*.tag
 *.swp
 *.autosave
 *.wasm
+CMakeLists.txt.user
+tags
+qtloader.js
+build*

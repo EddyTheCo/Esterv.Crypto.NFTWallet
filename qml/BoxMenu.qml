@@ -8,7 +8,7 @@ import Esterv.Styles.Simple
 import Esterv.Iota.AddrBundle
 import Esterv.Iota.Wallet
 import Esterv.Iota.NodeConnection
-import Esterv.Iota.NFTMinter
+import Esterv.Crypto.NFTWallet
 
 Rectangle
 {

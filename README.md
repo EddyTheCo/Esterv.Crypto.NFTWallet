@@ -1,4 +1,4 @@
-# [NftMinter](https://eddytheco.github.io/NftMinter/index.html)
+# [Esterv.Crypto.NFTWallet](https://eddytheco.github.io/Esterv.Crypto.NFTWallet/index.html)
 
 
 This repo produces an application that can mint NFTs on networks of IOTA with stardust protocol.
