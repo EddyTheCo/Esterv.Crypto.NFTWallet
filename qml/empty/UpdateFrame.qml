@@ -1,6 +1,5 @@
 import QtQuick
 
-Item
-{
-    visible:false;
+Item {
+    visible: false
 }
