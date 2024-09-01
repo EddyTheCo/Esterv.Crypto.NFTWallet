@@ -22,31 +22,12 @@ Drawer
     ColumnLayout {
         anchors.fill: parent
 
-        RowLayout
-        {
+
             ThemeSwitch
             {
-                Layout.alignment: Qt.AlignTop || Qt.AlignLeft
+                Layout.alignment:  Qt.AlignLeft
             }
-            Button
-            {
-                text:"About"
-                onClicked:aboutpop.open()
-            }
-        }
 
-        Popup
-        {
-            id:aboutpop
-            visible:false
-            anchors.centerIn: Overlay.overlay
-            closePolicy: Popup.CloseOnPressOutside
-            modal:true
-            About
-            {
-                anchors.fill: parent
-            }
-        }
 
 
         NodeConnectionSettings
@@ -65,6 +46,35 @@ Drawer
         {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignBottom
+        }
+        Label
+        {
+            id:aboutLabel
+            text:AboutThis.name + " " + AboutThis.version
+            Layout.alignment: Qt.AlignBottom|Qt.AlignHCenter
+
+            MouseArea
+            {
+                anchors.fill: parent
+                hoverEnabled:true
+
+                Popup
+                {
+                    id:aboutpop
+                    visible:parent.containsMouse
+                    y: -height
+                    width:300
+                    height:400
+                    About
+                    {
+                        anchors.fill: parent
+                        anchors.margins: 10
+                        description:"Made with \u2764 by Esterv"
+                        logo:"https://eddytheco.github.io/Esterv.Crypto.NFTWallet/img/esterlogo.png"
+                    }
+                }
+
+            }
         }
     }
 

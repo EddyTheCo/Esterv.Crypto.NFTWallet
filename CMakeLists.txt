@@ -27,7 +27,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml OPTIONAL_COMPONENTS Mult
 FetchContent_Declare(
 	EstervDesigns
 	GIT_REPOSITORY https://github.com/EddyTheCo/Esterv.Designs.git
-	GIT_TAG develop
+        GIT_TAG improve
         FIND_PACKAGE_ARGS 1.2 COMPONENTS EstervSimpleStyle EstervCustomControls EstervAbout${CMAKE_PROJECT_NAME} CONFIG
 	)
 FetchContent_MakeAvailable(EstervDesigns)

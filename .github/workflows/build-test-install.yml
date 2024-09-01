@@ -28,7 +28,7 @@ jobs:
     uses: EddyTheCo/Common/.github/workflows/build-android.yml@v0.4.1
     with:
       qtModules: 'qtwebsockets qtshadertools qtmultimedia'
-      qtTarget: 'nftminter'
+      qtTarget: 'nftwallet'
       qtVersion: '6.6.0'  
       cmakeArgs: ' -DUSE_THREADS=ON '  
       qtArch: ${{ matrix.qtArch }}  

@@ -6,6 +6,7 @@ import Esterv.Styles.Simple
 import Esterv.Iota.NodeConnection
 import Esterv.Crypto.NFTWallet
 
+
 import Esterv.Iota.Account
 
 ApplicationWindow {
@@ -88,6 +89,7 @@ ApplicationWindow {
             Layout.minimumWidth: (grid.iscolumn)?150:250
         }
     }
+
 
 
 
