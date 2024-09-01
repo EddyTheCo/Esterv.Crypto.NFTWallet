@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     engine.addImageProvider(QLatin1String("wasm"), new WasmImageProvider());
     engine.addImportPath("qrc:/esterVtech.com/imports");
 
-    const QUrl url("qrc:/esterVtech.com/imports/Esterv/Iota/NFTMinter/qml/window.qml");
+    const QUrl url("qrc:/esterVtech.com/imports/Esterv/Crypto/NFTWallet/qml/window.qml");
     engine.load(url);
 
     return app.exec();
