@@ -18,20 +18,20 @@ jobs:
       os: ${{ matrix.os }}
       cmakeArgs: ' -DUSE_THREADS=ON -DQTDEPLOY=ON -DCPACK_PACKAGE_CONTACT=estervtech@gmail.com -DREPO_URL=https://eddytheco.github.io/Esterv.Crypto.NFTWallet -DCPACK_PACKAGE_VENDOR=estervtech'  
       qtModules: 'qtwebsockets qtshadertools qtmultimedia'
-      qtVersion: '6.6.0'  
+      qtVersion: '6.6.0'
       test: false
   build-android:
     strategy:
       matrix:
-        qtArch: ['android_arm64_v8a','android_armv7']  
+        qtArch: ['android_arm64_v8a','android_armv7']
 
-    uses: EddyTheCo/Common/.github/workflows/build-android.yml@v0.4.1
+    uses: EddyTheCo/Common/.github/workflows/build-android.yml@ndk26
     with:
       qtModules: 'qtwebsockets qtshadertools qtmultimedia'
       qtTarget: 'nftwallet'
-      qtVersion: '6.6.0'  
-      cmakeArgs: ' -DUSE_THREADS=ON '  
-      qtArch: ${{ matrix.qtArch }}  
+      qtVersion: '6.6.3' 
+      cmakeArgs: ' -DUSE_THREADS=ON '
+      qtArch: ${{ matrix.qtArch }}
     secrets:
       QT_ANDROID_KEYSTORE_STORE_PASS:  ${{ secrets.QT_ANDROID_KEYSTORE_STORE_PASS }}
   build-wasm:
@@ -41,7 +41,7 @@ jobs:
       qtVersion: '6.6.0'
       emsdkVersion: '3.1.37'
       deploy_dev: ${{ (startsWith(github.base_ref, 'main'))&&(startsWith(github.head_ref, 'develop')) }}
-  
+
   release-deploy:
     if: ${{ ((startsWith(github.base_ref, 'main'))&&(startsWith(github.head_ref, 'develop')))||(startsWith(github.ref, 'refs/tags/v')) }}
     needs: [build_test_package,build-android,build-wasm]
@@ -57,13 +57,13 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-          
+
       - uses: actions/checkout@v4
-    
+
       - uses: actions/download-artifact@v4
         with:
            path: artifacts
-          
+
       - name: Display structure of downloaded files
         run: ls -R
 
@@ -89,7 +89,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v1
         with:
-          files: ./artifacts/*/*   
+          files: ./artifacts/*/*
 
       - uses: actions/upload-artifact@v4
         with:
