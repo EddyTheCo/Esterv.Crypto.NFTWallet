@@ -7,7 +7,7 @@ include(FetchContent)
 FetchContent_Declare(
   ccommon
   GIT_REPOSITORY https://github.com/EddyTheCo/Common.git
-  GIT_TAG v0.4.1)
+  GIT_TAG v0.5.0)
 FetchContent_MakeAvailable(ccommon)
 version_from_git(LOG OFF TIMESTAMP "%Y%m%d%H%M%S")
 project(
@@ -30,12 +30,12 @@ find_package(
 FetchContent_Declare(
   EstervDesigns
   GIT_REPOSITORY https://github.com/EddyTheCo/Esterv.Designs.git
-  GIT_TAG improve
+  GIT_TAG v2.0.0 
   FIND_PACKAGE_ARGS
-  1.2
+  2
   COMPONENTS
-  EstervSimpleStyle
-  EstervCustomControls
+  SimpleStyle
+  CustomControls
   EstervAbout${CMAKE_PROJECT_NAME}
   CONFIG)
 FetchContent_MakeAvailable(EstervDesigns)
@@ -48,18 +48,18 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(IotaWallet)
 
 FetchContent_Declare(
-  qrCode
+  EstervQrCode
   GIT_REPOSITORY https://github.com/EddyTheCo/qrCode.git
-  GIT_TAG use_latest
-  FIND_PACKAGE_ARGS 1.1 COMPONENTS EstervQtQrDec EstervQtQrGen CONFIG)
-FetchContent_MakeAvailable(qrCode)
+  GIT_TAG develop 
+  FIND_PACKAGE_ARGS 2 COMPONENTS QtQrDec QtQrGen CONFIG)
+FetchContent_MakeAvailable(EstervQrCode)
 
 FetchContent_Declare(
   EstervDTPickers
   GIT_REPOSITORY
     https://github.com/EddyTheCo/Esterv.CustomControls.DateTimePickers.git
   GIT_TAG develop
-  FIND_PACKAGE_ARGS 0.2 CONFIG)
+  FIND_PACKAGE_ARGS 1 CONFIG)
 FetchContent_MakeAvailable(EstervDTPickers)
 
 if(EMSCRIPTEN OR ANDROID)

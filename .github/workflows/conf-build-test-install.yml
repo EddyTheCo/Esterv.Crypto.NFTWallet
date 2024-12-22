@@ -1,6 +1,6 @@
 name: push-build-release
-run-name: ${{ github.actor }} ${{ github.event_name }} to ${{ github.base_ref }} 
-on: 
+run-name: ${{ github.actor }} ${{ github.event_name }} to ${{ github.base_ref }}
+on:
 
   push:
     tags:
@@ -13,29 +13,27 @@ jobs:
       matrix:
         os: [ubuntu-latest,macos-latest,windows-latest]
 
-    uses: EddyTheCo/Common/.github/workflows/build-test-install.yml@v0.4.1
+    uses: EddyTheCo/Common/.github/workflows/build-test-install.yml@v0.5.0
     with:
       os: ${{ matrix.os }}
-      cmakeArgs: ' -DUSE_THREADS=ON -DQTDEPLOY=ON -DCPACK_PACKAGE_CONTACT=estervtech@gmail.com -DREPO_URL=https://eddytheco.github.io/Esterv.Crypto.NFTWallet -DCPACK_PACKAGE_VENDOR=estervtech'  
       qtModules: 'qtwebsockets qtshadertools qtmultimedia'
-      qtVersion: '6.6.0'
-      test: false
+      qtVersion: '6.8.1'
   build-android:
     strategy:
       matrix:
         qtArch: ['android_arm64_v8a','android_armv7']
 
-    uses: EddyTheCo/Common/.github/workflows/build-android.yml@ndk26
+    uses: EddyTheCo/Common/.github/workflows/build-android.yml@v0.5.0
     with:
       qtModules: 'qtwebsockets qtshadertools qtmultimedia'
       qtTarget: 'nftwallet'
-      qtVersion: '6.6.3' 
+      qtVersion: '6.8.1'
       cmakeArgs: ' -DUSE_THREADS=ON '
       qtArch: ${{ matrix.qtArch }}
     secrets:
       QT_ANDROID_KEYSTORE_STORE_PASS:  ${{ secrets.QT_ANDROID_KEYSTORE_STORE_PASS }}
   build-wasm:
-    uses: EddyTheCo/Common/.github/workflows/build-wasm.yml@v0.4.1
+    uses: EddyTheCo/Common/.github/workflows/build-wasm.yml@v0.5.0
     with:
       qtModules: 'qtwebsockets qtshadertools'
       qtVersion: '6.6.0'
@@ -76,7 +74,7 @@ jobs:
           mkdir github-pages/packages/ ${{runner.temp}}/platforms/
           mv artifacts/*/_CPack_Packages/* ${{runner.temp}}/platforms/
           for i in ${{runner.temp}}/platforms/*; do mv $i/IFW/*/repository/* $i/; rm -rf $i/IFW $i/TGZ; done;
-          mv ${{runner.temp}}/platforms/* github-pages/packages/ 
+          mv ${{runner.temp}}/platforms/* github-pages/packages/
           rm -rf artifacts/*/_CPack_Packages
 
       - name: Package github-page
@@ -93,7 +91,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: 'github-pages' 
+          name: 'github-pages'
           path:  ${{runner.temp}}/page-packages/*
 
       - name: Deploy to GitHub Pages
